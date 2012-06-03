@@ -1,0 +1,42 @@
+table.pretty {
+  margin: 1em 1em 1em 2em;
+  background: whitesmoke;
+  border-collapse: collapse;
+}
+table.pretty th, table.pretty td {
+  border: 1px gainsboro solid;
+  padding: 0.2em;
+}
+table.pretty th {
+  background: gainsboro;
+  text-align: left;
+}
+table.pretty caption {
+  margin-left: inherit;
+  margin-right: inherit;
+}
+
+table.wikitable {
+	margin: 1em 1em 1em 0;
+	background-color: #f9f9f9;
+	border: 1px #aaa solid;
+	border-collapse: collapse;
+	color: black;
+}
+table.wikitable > tr > th,
+table.wikitable > tr > td,
+table.wikitable > * > tr > th,
+table.wikitable > * > tr > td {
+        border: 1px #aaa solid;
+        padding: 0.2em;
+}
+table.wikitable > tr > th,
+table.wikitable > * > tr > th {
+        background-color: #f2f2f2;
+        text-align: center;
+    	cursor: default;
+}
+table.wikitable > caption {
+        font-weight: bold;
+}
+
