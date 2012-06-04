@@ -6,5 +6,7 @@ from django.http import HttpResponse, Http404
 from streams.main.models import Stream, Interval, StreamNumber
 
 def homepage(request):
-    return HttpResponse("Success")
+    return render_to_response('main.html',
+                              {},
+                              context_instance=RequestContext(request))
 
