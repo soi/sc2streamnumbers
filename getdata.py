@@ -2,6 +2,7 @@
 
 import psycopg2
 import sys
+import xmlparser
 
 dbname = "streams"
 user = "root"
