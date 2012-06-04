@@ -1,0 +1,8 @@
+*.py[co]
+*~
+*.swp
+*.swo
+.DS_Store
+*.mo
+log
+doc/*.vpp~*

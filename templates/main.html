@@ -1,0 +1,71 @@
+{% load url from future %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Streamnumbers.com{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="all" charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.lightbox-0.5.css" media="screen" />
+    <!-- <script type="text/javascript" src="/js/jquery.js"></script> -->
+    <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery.lightbox-0.5.min.js"></script>
+    <script type="text/javascript" src="js/custom.js"></script>
+	<!--TODO: replace with minimal version-->
+</head>
+<body>
+	<div id="mainwrap" class="wide">
+		<div id="header" align="left">
+			<a href="/"><div id="logo"><img src="images/logo.png" alt="logo" /></div></a>
+		</div>
+
+		{% for message in messages %}
+			<div{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+				{{ message }}
+			</div>
+		{% endfor %}
+
+		<div id="content-body">
+			<div id="sidebar">
+				<li>
+				<a href="{% url 'flo.galleries.views.gallery' 'paintings' %}">
+					<ul>{% trans "Zeichnungen" %}</ul>
+				</a>
+				<a href="{% url 'flo.galleries.views.gallery' 'magazines' %}">
+					<ul>{% trans "Print" %}</ul>
+				</a>
+				<a href="{% url 'flo.galleries.views.gallery' 't-shirts' %}">
+					<ul>{% trans "T-Shirts" %}</ul>
+				</a>
+				<a href="{% url 'flo.galleries.views.gallery' 'canvas' %}">
+					<ul>{% trans "Leinwände" %}</ul>
+				</a>
+				<a href="{% url 'flo.galleries.views.gallery' 'graphics' %}">
+					<ul>{% trans "Grafik" %}</ul>
+				</a>
+				<a href="{% url 'flo.galleries.views.gallery' 'movies' %}">
+					<ul>{% trans "Filme" %}</ul>
+				</a>
+				<a href="/vita/">
+					<ul>{% trans "Vita" %}</ul>
+				</a>
+				<a href="{% url 'flo.contact.views.contact' %}">
+					<ul>{% trans "Kontakt" %}</ul>
+				</a>
+			</div>
+
+			<div id="content">
+				{% block content %}
+				{% endblock %}
+			</div>
+		</div>
+
+		<div id="footer" class="wide">
+			<span class="">©2011 Flo's Homepage</span> ·
+			<a href="/admin/">Admin</a> ·
+			<a href="/about/">{% trans "Impressum" %}</a> ·
+			<a href="{% url 'flo.contact.views.contact' %}">{% trans "Kontakt" %}</a>
+		</div>
+	</div>
+</body>
+</html>
+

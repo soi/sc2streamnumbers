@@ -1,0 +1,46 @@
+[
+    {
+        "pk": 1, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "felix", 
+            "first_name": "", 
+            "last_name": "", 
+            "is_active": true, 
+            "is_superuser": true, 
+            "is_staff": true, 
+            "last_login": "2012-06-04 09:53:15", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "sha1$36871$b67019f79e890f48a802e49838f3140b0a435d53", 
+            "email": "mail@felix-stiehler.de", 
+            "date_joined": "2012-06-04 09:53:15"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "sites.site", 
+        "fields": {
+            "domain": "example.com", 
+            "name": "example.com"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "south.migrationhistory", 
+        "fields": {
+            "applied": "2012-06-04 15:29:13", 
+            "app_name": "main", 
+            "migration": "0001_initial"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "south.migrationhistory", 
+        "fields": {
+            "applied": "2012-06-04 15:44:55", 
+            "app_name": "main", 
+            "migration": "0002_auto__add_streamtype"
+        }
+    }
+]
