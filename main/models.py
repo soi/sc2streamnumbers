@@ -12,4 +12,5 @@ class Interval(models.Model):
 class StreamNumber(models.Model):
     stream = models.ForeignKey(Stream)
     interval = models.ForeignKey(Interval)
+    stream_type = models.ForeignKey(StreamType)
     number = models.IntegerField()
