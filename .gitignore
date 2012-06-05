@@ -7,3 +7,4 @@
 log
 doc/*.vpp~*
 xml/*
+conti.sqlite

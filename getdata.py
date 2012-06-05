@@ -15,6 +15,7 @@ DBNAME = "streams"
 DBUSER = "root"
 
 # retrive the xml file
+'''
 request = urllib2.Request(URL)
 request.add_header('Accept-encoding', 'gzip')
 request.add_header('User-agent', 'Custom User Agent')
@@ -29,6 +30,8 @@ external_file.close();
 # unzip it
 buf = StringIO.StringIO(response_str)
 f = gzip.GzipFile(fileobj=buf)
+'''
+f = open('tl.xml')
 xml_data = f.read()
 
 # parse the data
@@ -38,8 +41,14 @@ stream_list = []
 
 for stream in parser:
     latest_stream = {}
-    latest_stream['number'] = stream.get('viewers')
-    latest_stream['type'] = stream.get('type')
+    if stream.get('type') is None:
+        latest_stream['type'] = 'Default'
+    else:
+        latest_stream['type'] = stream.get('type')
+    if stream.get('viewers') is None:
+        latest_stream['number'] = '0'
+    else:
+        latest_stream['number'] = stream.get('viewers')
 
     channel = stream.find('channel')
     latest_stream['name'] = channel.get('title')
@@ -50,32 +59,46 @@ for stream in parser:
 conn = psycopg2.connect("dbname=" + DBNAME + " user=" + DBUSER)
 cur = conn.cursor()
 
-# import pdb; pdb.set_trace()
-
 cur.execute("SELECT name from main_stream")
-names = cur.fetchall()
+names = [elem[0] for elem in cur.fetchall()]
 
 cur.execute("SELECT name from main_streamtype")
-types = cur.fetchall()
+types = [elem[0] for elem in cur.fetchall()]
 
 # write the data in the database
-cur.execute("INSERT into main_interval (date) VALUES (%s) RETURNING id", (datetime.datetime.now(),))
+cur.execute("INSERT into main_interval (date) VALUES (%s) RETURNING id",
+            (datetime.datetime.now(),))
 interval_id = cur.fetchone()[0]
 
 for stream in stream_list:
     if stream['type'] not in types:
-        cur.execute("INSERT into main_streamtype (name) VALUES (%s)", (stream['type'],))
+        cur.execute("INSERT into main_streamtype (name) VALUES (%s)",
+                    (stream['type'],))
+        types.append(stream['type'])
     if stream['name'] not in names:
-        cur.execute("INSERT into main_stream (name) VALUES (%s)", (stream['name'],))
+        cur.execute("INSERT into main_stream (name) VALUES (%s)",
+                    (stream['name'],))
+        names.append(stream['name'])
 
     # get the id of the type and name
-    cur.execute("SELECT id from main_stream WHERE name = %s", (stream['name'],))
+    cur.execute("SELECT id from main_stream WHERE name = %s",
+                (stream['name'],))
     stream_id = cur.fetchone()[0]
 
-    cur.execute("SELECT id from main_streamtype WHERE name = %s", (stream['type'],))
+    cur.execute("SELECT id from main_streamtype WHERE name = %s",
+                (stream['type'],))
     type_id = cur.fetchone()[0]
 
-    cur.execute("INSERT into main_streamnumber (stream_id, interval_id, stream_type_id, number) VALUES (%s,%s,%s,%s)", (str(stream_id), str(interval_id), str(type_id), str(stream['number']),))
+    cur.execute("INSERT into main_streamnumber (stream_id, interval_id, \
+                stream_type_id, number) VALUES (%s,%s,%s,%s)",
+                (
+                     str(stream_id),
+                     str(interval_id),
+                     str(type_id),
+                     stream['number']
+                ))
+
+    conn.commit()
 
 cur.close()
 conn.close()
