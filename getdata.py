@@ -50,6 +50,8 @@ for stream in parser:
 conn = psycopg2.connect("dbname=" + DBNAME + " user=" + DBUSER)
 cur = conn.cursor()
 
+# import pdb; pdb.set_trace()
+
 cur.execute("SELECT name from main_stream")
 names = cur.fetchall()
 
@@ -73,7 +75,7 @@ for stream in stream_list:
     cur.execute("SELECT id from main_streamtype WHERE name = %s", (stream['type'],))
     type_id = cur.fetchone()[0]
 
-    cur.execute("INSERT into main_streamnumber (stream_id, interval_id, stream_type_id, number) VALUES (%s,%s,%s.%s)", (stream_id, interval_id, type_id, str(stream['number'])))
+    cur.execute("INSERT into main_streamnumber (stream_id, interval_id, stream_type_id, number) VALUES (%s,%s,%s,%s)", (str(stream_id), str(interval_id), str(type_id), str(stream['number']),))
 
 cur.close()
 conn.close()
