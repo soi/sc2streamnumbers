@@ -15,7 +15,6 @@ DBNAME = "streams"
 DBUSER = "root"
 
 # retrive the xml file
-'''
 request = urllib2.Request(URL)
 request.add_header('Accept-encoding', 'gzip')
 request.add_header('User-agent', 'Custom User Agent')
@@ -30,8 +29,7 @@ external_file.close();
 # unzip it
 buf = StringIO.StringIO(response_str)
 f = gzip.GzipFile(fileobj=buf)
-'''
-f = open('tl.xml')
+# f = open('tl.xml')
 xml_data = f.read()
 
 # parse the data
