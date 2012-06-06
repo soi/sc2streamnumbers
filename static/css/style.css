@@ -35,3 +35,7 @@ li {
 #mainwrap {
 	width: 960px;
 }
+
+.stream-list-stream {
+	margin-bottom: 20px;
+}

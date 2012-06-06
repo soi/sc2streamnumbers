@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+	<div id="stream-list">
+		latest interval: {{ interval.date }} </br>
+		{% for snum in stream_numbers %}
+			<div class="stream-list-stream">
+				Name: {{ snum.stream.name }} </br>
+				Viewers: {{ snum.number }} </br>
+				Type: {{ snum.stream_type.name }} </br>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}
