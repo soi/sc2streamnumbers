@@ -3,20 +3,21 @@
     padding: 0;
     font-family: arial, sans-serif;
     font-size: 100%;
-	color: #CCC;
+	color: #111;
 }
 
 body {
-	background-color: #050505;
+	background-color: #fefefe;
 }
 
 a {
-	text-decoration: None;
+	text-decoration: underline;
+	color: darkblue;
 }
 
 h1 {
 	font-size: 2em;
-	color: #FF8734;
+	color: #222;
 	margin-bottom: 9px;
 	/*border-bottom: 1px dotted #555;*/
 }
@@ -36,6 +37,11 @@ li {
 	width: 960px;
 }
 
+#stream-list {
+	margin-top: 10px;
+}
+
 .stream-list-stream {
-	margin-bottom: 20px;
+	margin-bottom: 15px;
+	margin-top: 5px;
 }
