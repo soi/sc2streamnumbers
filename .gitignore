@@ -8,3 +8,4 @@ log
 doc/*.vpp~*
 xml/*
 conti.sqlite
+insert_data.json
