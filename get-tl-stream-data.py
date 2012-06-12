@@ -3,6 +3,7 @@
 import sys
 import gzip
 import time
+import pytz
 import urllib2
 import StringIO
 import psycopg2
@@ -13,6 +14,11 @@ URL = 'http://www.teamliquid.net/video/streams/?filter=live&xml=1'
 XML_FILES_FOLDER = '/home/felix/git/streams/xml/'
 DBNAME = "streams"
 DBUSER = "root"
+# can cause problems when < 3 min
+QUERY_INTERVAL_MIN = 5
+
+# save the time of the script at the start
+now = datetime.datetime.now(pytz.timezone('Europe/Berlin'))
 
 # retrive the xml file
 request = urllib2.Request(URL)
@@ -57,15 +63,24 @@ for stream in parser:
 conn = psycopg2.connect("dbname=" + DBNAME + " user=" + DBUSER)
 cur = conn.cursor()
 
-cur.execute("SELECT name from main_stream")
+cur.execute("SELECT date FROM main_interval ORDER BY date DESC LIMIT 1")
+last_interval_date = cur.fetchone()[0]
+min_interval_delta = now - datetime.timedelta(minutes=(QUERY_INTERVAL_MIN + 2))
+
+# fill a possible gap with blank intervals
+while last_interval_date < min_interval_delta:
+    last_interval_date = last_interval_date + datetime.timedelta(minutes=5)
+    cur.execute("INSERT into main_interval (date) VALUES (%s)",
+                last_interval_date)
+
+cur.execute("SELECT name FROM main_stream")
 names = [elem[0] for elem in cur.fetchall()]
 
-cur.execute("SELECT name from main_streamtype")
+cur.execute("SELECT name FROM main_streamtype")
 types = [elem[0] for elem in cur.fetchall()]
 
 # write the data in the database
-cur.execute("INSERT into main_interval (date) VALUES (%s) RETURNING id",
-            (datetime.datetime.now(),))
+cur.execute("INSERT into main_interval (date) VALUES (%s) RETURNING id", now)
 interval_id = cur.fetchone()[0]
 
 for stream in stream_list:
@@ -79,11 +94,11 @@ for stream in stream_list:
         names.append(stream['name'])
 
     # get the id of the type and name
-    cur.execute("SELECT id from main_stream WHERE name = %s",
+    cur.execute("SELECT id FROM main_stream WHERE name = %s",
                 (stream['name'],))
     stream_id = cur.fetchone()[0]
 
-    cur.execute("SELECT id from main_streamtype WHERE name = %s",
+    cur.execute("SELECT id FROM main_streamtype WHERE name = %s",
                 (stream['type'],))
     type_id = cur.fetchone()[0]
 

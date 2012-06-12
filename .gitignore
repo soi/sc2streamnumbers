@@ -9,3 +9,4 @@ doc/*.vpp~*
 xml/*
 conti.sqlite
 insert_data.json
+one_week_streams.sql

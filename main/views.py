@@ -46,7 +46,7 @@ def stream_numbers(request, stream_id, time_span):
             unix_time = int(snum.interval.date.strftime("%s"))
             return_arr.append({
                                 'date': unix_time,
-                                'number': snum.number
+                                'number': int(snum.number)
                               })
         return return_arr
 
@@ -58,7 +58,7 @@ def stream_numbers(request, stream_id, time_span):
     except Stream.DoesNotExist:
         return HttpResponse('Invalid stream id')
 
-    now = datetime.datetime(2012, 6, 6, 15, 15, 02)
+    now = datetime.datetime(2012, 6, 12, 21, 00, 02)
     # now = datetime.datetime.now()
     if time_span == 'hour':
         min_time = now - datetime.timedelta(hours=1)
