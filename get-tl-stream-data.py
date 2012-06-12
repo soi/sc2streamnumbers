@@ -71,7 +71,7 @@ min_interval_delta = now - datetime.timedelta(minutes=(QUERY_INTERVAL_MIN + 2))
 while last_interval_date < min_interval_delta:
     last_interval_date = last_interval_date + datetime.timedelta(minutes=5)
     cur.execute("INSERT into main_interval (date) VALUES (%s)",
-                last_interval_date)
+                (last_interval_date,))
 
 cur.execute("SELECT name FROM main_stream")
 names = [elem[0] for elem in cur.fetchall()]
@@ -80,7 +80,8 @@ cur.execute("SELECT name FROM main_streamtype")
 types = [elem[0] for elem in cur.fetchall()]
 
 # write the data in the database
-cur.execute("INSERT into main_interval (date) VALUES (%s) RETURNING id", now)
+cur.execute("INSERT into main_interval (date) VALUES (%s) RETURNING id",
+            (now,))
 interval_id = cur.fetchone()[0]
 
 for stream in stream_list:
