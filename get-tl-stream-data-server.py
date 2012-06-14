@@ -104,11 +104,10 @@ def add_missing_intervals(now, stream_number_types):
 
         conn.commit()
         return interval_count
-    else: 
+    else:
         return 0
 
-def insert_stream_numbers(stream_list, stream_number_types,
-                          interval_id, interval_snt_id):
+def insert_raw_stream_numbers(stream_list, interval_id):
     cur.execute("SELECT name FROM main_stream")
     names = [elem[0] for elem in cur.fetchall()]
 
@@ -135,13 +134,6 @@ def insert_stream_numbers(stream_list, stream_number_types,
                     (stream['type'],))
         type_id = cur.fetchone()[0]
 
-        # put the list of applying snts together
-        valid_snts = []
-        for snt in stream_number_types:
-            if snt[0] == interval_snt_id:
-                # list without the raw one
-                valid_snts = stream_number_types[stream_number_types.index(snt):-1]
-                break
 
         # insert the raw one
         cur.execute("INSERT into main_streamnumber (stream_id, interval_id, \
@@ -156,7 +148,22 @@ def insert_stream_numbers(stream_list, stream_number_types,
                     ))
         conn.commit()
 
-        # insert all the further ones if needed
+def insert_avg_stream_numbers(interval_id,
+                              stream_number_types,
+                              interval_snt_id):
+
+    cur.execute("SELECT id FROM main_stream")
+    all_stream_ids = cur.fetchall()
+
+    # put the list of applying snts together
+    valid_snts = []
+    for snt in stream_number_types:
+        if snt[0] == interval_snt_id:
+            # list without the raw one
+            valid_snts = stream_number_types[stream_number_types.index(snt):-1]
+            break
+
+    for stream_id in all_stream_ids:
         for snt in valid_snts:
             cur.execute("SELECT avg(n.number) FROM \
                             (SELECT sn.number FROM main_interval as i \
@@ -169,23 +176,24 @@ def insert_stream_numbers(stream_list, stream_number_types,
                              ORDER BY i.date DESC \
                              LIMIT %s - 1) as n;",
                         (
-                             str(stream_id),
+                             str(stream_id[0]),
                              str(snt[1]),
                         ))
-            snt_stream_number = int(cur.fetchone()[0])
+            snt_stream_number = cur.fetchone()[0]
 
-            cur.execute("INSERT into main_streamnumber (stream_id, interval_id, \
-                        stream_type_id, stream_number_type_id, number) \
-                        VALUES (%s,%s,%s,%s,%s)",
-                        (
-                             str(stream_id),
-                             str(interval_id),
-                             str(type_id),
-                             str(snt[0]),
-                             str(snt_stream_number),
-                        ))
+            if snt_stream_number is not None:
+                cur.execute("INSERT into main_streamnumber (stream_id, interval_id, \
+                            stream_type_id, stream_number_type_id, number) \
+                            VALUES (%s,%s,%s,%s,%s)",
+                            (
+                                 str(stream_id[0]),
+                                 str(interval_id),
+                                 '1',
+                                 str(snt[0]),
+                                 str(int(snt_stream_number)),
+                            ))
 
-            conn.commit()
+                conn.commit()
 
 
 # save the time of the script at the start
@@ -207,8 +215,8 @@ interval_snt_id = get_interval_snt_id(interval_count + 1,
                                       stream_number_types)
 interval_id = insert_new_interval(now, stream_number_types, interval_snt_id)
 stream_list = get_stream_dict_from_xml()
-insert_stream_numbers(stream_list, stream_number_types,
-                      interval_id, interval_snt_id)
+insert_raw_stream_numbers(stream_list, interval_id)
+insert_avg_stream_numbers(interval_id, stream_number_types, interval_snt_id)
 
 # finish
 conn.commit()
