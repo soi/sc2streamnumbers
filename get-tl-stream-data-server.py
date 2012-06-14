@@ -11,9 +11,10 @@ import datetime
 import xml.etree.ElementTree as ET
 
 URL = 'http://www.teamliquid.net/video/streams/?filter=live&xml=1'
-XML_FILES_FOLDER = '/home/felix/git/streams/xml/'
+XML_FILES_FOLDER = '/home/soi/streams/xml/'
 DB_NAME = "streams"
-DB_USER = "root"
+DB_USER = "streams"
+DB_PASSWORD = "SZFLgMGS"
 # can cause problems when < 3 min
 QUERY_INTERVAL_MIN = 5
 
@@ -103,7 +104,7 @@ def add_missing_intervals(now, stream_number_types):
 
         conn.commit()
         return interval_count
-    else:
+    else: 
         return 0
 
 def insert_stream_numbers(stream_list, stream_number_types,
@@ -191,7 +192,9 @@ def insert_stream_numbers(stream_list, stream_number_types,
 now = datetime.datetime.now(pytz.timezone('Europe/Berlin'))
 
 # db connection
-conn = psycopg2.connect("dbname=" + DB_NAME + " user=" + DB_USER)
+conn = psycopg2.connect("dbname=" + DB_NAME + \
+                        " user=" + DB_USER + \
+                        " password=" + DB_PASSWORD)
 cur = conn.cursor()
 
 cur.execute("SELECT id, number_count FROM main_streamnumbertype \

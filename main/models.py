@@ -11,8 +11,8 @@ class StreamNumberType(models.Model):
     number_count = models.IntegerField()
 
 class Interval(models.Model):
-    date = models.DateTimeField()
     stream_number_type = models.ForeignKey(StreamNumberType)
+    date = models.DateTimeField()
 
 class StreamNumber(models.Model):
     stream = models.ForeignKey(Stream)

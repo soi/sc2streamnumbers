@@ -1,4 +1,4 @@
-INSERT INTO main_streamnumbertype (id, name, field_count) VALUES
+INSERT INTO main_streamnumbertype (id, name, number_count) VALUES
 (1, 'Raw', 1),
 (2, 'Day', 6),
 (3, 'Week', 48),
