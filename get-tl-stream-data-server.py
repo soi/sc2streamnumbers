@@ -18,13 +18,23 @@ DB_PASSWORD = "SZFLgMGS"
 # can cause problems when < 3 min
 QUERY_INTERVAL_MIN = 5
 
+def get_total_number_count(snt_id, stream_number_types):
+    """Calculates the raw number count of a snt.
+    stream_number_types are supposed to be ordered with the biggest first"""
+    count = 1
+    for snt in stream_number_types:
+        if snt[0] <= snt_id:
+            count = count * snt[1]
+    return count
+
 def get_interval_snt_id(interval_count, stream_number_types):
-    '''checks if the current interval count is special.
+    """checks if the current interval count is special.
     stream_number_types are supposed to be ordered with the biggest first
     returns the stream_number_type id.
-    last number is always 1 so 1 is the default return id'''
+    last number is always 1 so 1 is the default return id"""
     for snt in stream_number_types:
-        if interval_count % snt[1] == 0:
+        number_count = get_total_number_count(snt[0], stream_number_types)
+        if interval_count % number_count == 0:
             return snt[0]
 
 def get_tl_xml_file():
@@ -165,25 +175,28 @@ def insert_avg_stream_numbers(interval_id,
 
     for stream_id in all_stream_ids:
         for snt in valid_snts:
+            # calculate from the averages from the next bigger resolution
             cur.execute("SELECT avg(n.number) FROM \
                             (SELECT sn.number FROM main_interval as i \
                              LEFT JOIN main_streamnumber as sn \
-                                ON sn.interval_id = i.id \
-                             WHERE (sn.stream_id IS NULL \
-                                OR sn.stream_id = %s) \
-                             AND (sn.stream_number_type_id IS NULL \
-                                OR sn.stream_number_type_id = 1) \
+                                ON (sn.interval_id = i.id \
+                                    AND sn.stream_id = %s \
+                                    AND sn.stream_number_type_id = %s) \
+                             WHERE i.stream_number_type_id = %s \
                              ORDER BY i.date DESC \
                              LIMIT %s - 1) as n;",
                         (
                              str(stream_id[0]),
+                             str(snt[0] - 1),
+                             str(snt[0] - 1),
                              str(snt[1]),
                         ))
             snt_stream_number = cur.fetchone()[0]
 
             if snt_stream_number is not None:
-                cur.execute("INSERT into main_streamnumber (stream_id, interval_id, \
-                            stream_type_id, stream_number_type_id, number) \
+                cur.execute("INSERT into main_streamnumber (stream_id, \
+                            interval_id, stream_type_id, \
+                            stream_number_type_id, number) \
                             VALUES (%s,%s,%s,%s,%s)",
                             (
                                  str(stream_id[0]),
