@@ -37,27 +37,36 @@ def detail(request, stream_id):
                               context_instance=RequestContext(request))
 
 def stream_numbers(request, stream_id, time_span):
-    def get_snt_id(snt_name):
-        snt = StreamNumberType.objects.get(name=snt_name)
-        return snt.id
+    def dictfetchall(cursor):
+        "Returns all rows from a cursor as a dict"
+        desc = cursor.description
+        return [
+            dict(zip([col[0] for col in desc], row))
+            for row in cursor.fetchall()
+        ]
 
     def get_stream_numbers(stream, min_time, snt_name):
-        snt = StreamNumberType.objects.get(name=snt_name)
-        return StreamNumber.objects \
-            .filter(stream=stream) \
-            .filter(interval__date__gte=min_time) \
-            .filter(stream_number_type__id__gte=snt.id) \
-            .order_by('interval__date')
+        from django.db import connection, transaction
 
-    def get_snum_dict(stream_numbers):
-        return_arr = []
-        for snum in stream_numbers:
-            unix_time = int(snum.interval.date.strftime("%s"))
-            return_arr.append({
-                                'date': unix_time,
-                                'number': int(snum.number)
-                              })
-        return return_arr
+        cursor = connection.cursor()
+        snt = StreamNumberType.objects.get(name=snt_name)
+        cursor.execute('SELECT sn.number, i.date FROM main_interval as i \
+                        LEFT JOIN main_streamnumber as sn \
+                            ON (sn.interval_id = i.id \
+                                AND sn.stream_id = %s  \
+                                AND sn.stream_number_type_id = %s) \
+                        WHERE i.date >= %s \
+                        ORDER BY i.date ASC',
+                        [
+                            stream.id,
+                            snt.id,
+                            min_time,
+                        ]);
+
+        stream_numbers = dictfetchall(cursor)
+        for elem in stream_numbers:
+            elem['date'] = int(elem['date'].strftime("%s"))
+        return stream_numbers
 
     # time_spans = ['hour', 'day', 'week', 'month', 'year', 'forever']
     time_spans = ['hour', 'day', 'week', 'month',]
@@ -84,5 +93,5 @@ def stream_numbers(request, stream_id, time_span):
         # there is no data from 2011 or before
         min_time = datetime.datetime(2012, 1, 1, 0, 0, 0)
 
-    snum_dict = get_snum_dict(get_stream_numbers(stream, min_time, time_span))
+    snum_dict = get_stream_numbers(stream, min_time, time_span)
     return HttpResponse(json.dumps(snum_dict))

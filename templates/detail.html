@@ -19,10 +19,11 @@
 				function(data) {
 					the_values = new Array(data.length);
 					the_tooltips = new Array(data.length);
-					the_labels = ['0:00', '6:00', '12:00', '18:00'];
+					the_labels = new Array(data.length);
 					$.each(data, function(index, point) {
 						the_tooltips[index] = get_tool_tip_div(point['number'],
 															  point['date']);
+						the_labels[index] = index + 1;
 						the_values[index] = point['number'];
 					});
 
