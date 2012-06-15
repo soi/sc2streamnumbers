@@ -181,9 +181,8 @@ def insert_avg_stream_numbers(interval_id,
                                 ON (sn.interval_id = i.id \
                                     AND sn.stream_id = %s \
                                     AND sn.stream_number_type_id = %s) \
-                             WHERE i.stream_number_type_id = %s \
                              ORDER BY i.date DESC \
-                             LIMIT %s - 1) as n;",
+                             LIMIT %s) as n;",
                         (
                              str(stream_id[0]),
                              str(snt[0] - 1),
