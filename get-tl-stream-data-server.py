@@ -171,6 +171,8 @@ def insert_avg_stream_numbers(interval_id,
         if snt[0] == interval_snt_id:
             # list without the raw one
             valid_snts = stream_number_types[stream_number_types.index(snt):-1]
+            # with the lowest at front now
+            valid_snts.reverse()
             break
 
     for stream_id in all_stream_ids:
@@ -182,6 +184,7 @@ def insert_avg_stream_numbers(interval_id,
                                 ON (sn.interval_id = i.id \
                                     AND sn.stream_id = %s \
                                     AND sn.stream_number_type_id = %s) \
+                             WHERE i.stream_number_type_id >= %s \
                              ORDER BY i.date DESC \
                              LIMIT %s) as n;",
                         (
@@ -207,7 +210,6 @@ def insert_avg_stream_numbers(interval_id,
 
                 conn.commit()
 
-
 # save the time of the script at the start
 now = datetime.datetime.now(pytz.timezone('Europe/Berlin'))
 
@@ -218,7 +220,7 @@ conn = psycopg2.connect("dbname=" + DB_NAME + \
 cur = conn.cursor()
 
 cur.execute("SELECT id, number_count FROM main_streamnumbertype \
-             ORDER BY number_count DESC")
+             ORDER BY id DESC")
 stream_number_types = cur.fetchall()
 
 # where the magic happends

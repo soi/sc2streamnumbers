@@ -29,8 +29,8 @@ $.elycharts.templates['streamnumbers'] = {
 		},
 		tooltip: {
 			height: 35,
-			width: 80,
-			padding: [3, 3],
+			width: 95,
+			padding: [4, 3],
 			offset: [-15, -10],
 			frameProps: {
 				opacity: 0.75,

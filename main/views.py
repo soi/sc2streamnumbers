@@ -7,12 +7,15 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, Http404
 from django.contrib.sites.models import Site
 
-from streams.main.models import Stream, Interval, StreamNumber
+from streams.main.models import (Stream, Interval, StreamNumber,
+    StreamNumberType, StreamType)
 
 def homepage(request):
     latest_interval = Interval.objects.order_by('-date')[0]
     stream_numbers= StreamNumber.objects.select_related() \
-        .filter(interval=latest_interval).order_by('-number')
+        .filter(interval=latest_interval) \
+        .filter(stream_number_type__id=1) \
+        .order_by('-number')
     return render_to_response('homepage.html',
                               {
                                 'stream_numbers': stream_numbers,
@@ -34,11 +37,17 @@ def detail(request, stream_id):
                               context_instance=RequestContext(request))
 
 def stream_numbers(request, stream_id, time_span):
-    def get_stream_numbers(stream, min_time):
+    def get_snt_id(snt_name):
+        snt = StreamNumberType.objects.get(name=snt_name)
+        return snt.id
+
+    def get_stream_numbers(stream, min_time, snt_name):
+        snt = StreamNumberType.objects.get(name=snt_name)
         return StreamNumber.objects \
-                           .filter(stream=stream,
-                                   interval__date__gt=min_time) \
-                           .order_by('interval__date')
+            .filter(stream=stream) \
+            .filter(interval__date__gte=min_time) \
+            .filter(stream_number_type__id__gte=snt.id) \
+            .order_by('interval__date')
 
     def get_snum_dict(stream_numbers):
         return_arr = []
@@ -50,7 +59,8 @@ def stream_numbers(request, stream_id, time_span):
                               })
         return return_arr
 
-    time_spans = ['hour', 'day', 'week', 'month', 'year', 'forever']
+    # time_spans = ['hour', 'day', 'week', 'month', 'year', 'forever']
+    time_spans = ['hour', 'day', 'week', 'month',]
     if time_span not in time_spans:
         return HttpResponse('Invalid time span')
     try:
@@ -58,8 +68,8 @@ def stream_numbers(request, stream_id, time_span):
     except Stream.DoesNotExist:
         return HttpResponse('Invalid stream id')
 
-    now = datetime.datetime(2012, 6, 12, 21, 00, 02)
-    # now = datetime.datetime.now()
+    # now = datetime.datetime(2012, 6, 12, 21, 00, 02)
+    now = datetime.datetime.now()
     if time_span == 'hour':
         min_time = now - datetime.timedelta(hours=1)
     elif time_span == 'day':
@@ -67,13 +77,12 @@ def stream_numbers(request, stream_id, time_span):
     elif time_span == 'week':
         min_time = now - datetime.timedelta(days=7)
     elif time_span == 'month':
-        min_time = now - datetime.timedelta(months=1)
+        min_time = now - datetime.timedelta(days=30)
     elif time_span == 'year':
         min_time = now - datetime.timedelta(years=1)
     elif time_span == 'forever':
         # there is no data from 2011 or before
         min_time = datetime.datetime(2012, 1, 1, 0, 0, 0)
 
-    snum_dict = get_snum_dict(get_stream_numbers(stream, min_time))
+    snum_dict = get_snum_dict(get_stream_numbers(stream, min_time, time_span))
     return HttpResponse(json.dumps(snum_dict))
-
