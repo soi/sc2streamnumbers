@@ -1,9 +1,9 @@
-$.elycharts.templates['streamnumbers'] = {
+$.elycharts.templates['streamnumbers-basic'] = {
 	type: "line",
 	style: {
 		"background-color": "#0B0B0B"
 	},
-	margins: [10, 15, 25, 45],
+	margins: [10, 15, 25, 55],
 	defaultSeries: {
 		rounded: 0.6,
 		fill: true,
@@ -72,3 +72,11 @@ $.elycharts.templates['streamnumbers'] = {
 		}
 	}
 }
+
+$.elycharts.templates['streamnumbers-hour'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
+$.elycharts.templates['streamnumbers-day'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
+$.elycharts.templates['streamnumbers-week'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
+$.elycharts.templates['streamnumbers-month'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
+
+$.elycharts.templates['streamnumbers-day']['features']['grid']['nx'] = 8;
+

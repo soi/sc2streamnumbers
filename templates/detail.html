@@ -2,10 +2,30 @@
 {% block content %}
 
 	<script type="text/javascript" charset="utf-8">
+		function format_time(type, unix_time) {
+			var date = new Date(unix_time * 1000);
+
+			if (type == "hour" || type == "day") {
+				return date.toString("HH:mm M/d/yyyy");
+			}
+			if (type == 'week') {
+				return date.toString("HH:mm M/d/yyyy");
+			}
+			return date.toString("M/d/yyyy");
+		}
+
 		function get_tool_tip_div(hits, unix_date) {
+			hits_str = ""
+			if (hits == null) {
+				hits_str = "stream offline";
+			}
+			else {
+				hits_str = hits + " viewers";
+			}
+
 			tool_tip = $('<div>').addClass("graph-tooltip-label");
 			$('<p>').addClass("graph-tooltip-number")
-				.html(hits + " viewers").appendTo(tool_tip);
+				.html(hits_str).appendTo(tool_tip);
 			$('<p>').addClass("graph-tooltip-date")
 				.html(unix_date).appendTo(tool_tip);
 			return tool_tip;
@@ -21,15 +41,21 @@
 					the_tooltips = new Array(data.length);
 					the_labels = new Array(data.length);
 					$.each(data, function(index, point) {
+						date_str = format_time(type, point['date']);
 						the_tooltips[index] = get_tool_tip_div(point['number'],
-															  point['date']);
+															   date_str);
 						the_labels[index] = index + 1;
-						the_values[index] = point['number'];
+						if (point['number'] == null) {
+							the_values[index] = 0;
+						}
+						else {
+							the_values[index] = point['number'];
+						}
 					});
 
 					$("#graph").chart("clear");
 					$("#graph").chart({
-						template: "streamnumbers",
+						template: "streamnumbers-" + type,
 						tooltips: the_tooltips,
 						values: {
 							serie1: the_values,
@@ -47,18 +73,10 @@
 	<div id="details">
 		<h1>{{ stream.name }}</h1>
 		<div id="details-menu">
-			<a href="#" onclick="load_graph('hour')">
-				hour
-			</a>
-			<a href="#" onclick="load_graph('day')">
-				day
-			</a>
-			<a href="#" onclick="load_graph('week')">
-				week
-			</a>
-			<a href="#" onclick="load_graph('month')">
-				month
-			</a>
+			<a href="#" onclick="load_graph('hour')"> hour </a>
+			<a href="#" onclick="load_graph('day')"> day </a>
+			<a href="#" onclick="load_graph('week')"> week </a>
+			<a href="#" onclick="load_graph('month')"> month </a>
 		</div>
 		<div id="graph">
 		</div>

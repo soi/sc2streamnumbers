@@ -56,11 +56,13 @@ def stream_numbers(request, stream_id, time_span):
                                 AND sn.stream_id = %s  \
                                 AND sn.stream_number_type_id = %s) \
                         WHERE i.date >= %s \
+                            AND i.stream_number_type_id >= %s \
                         ORDER BY i.date ASC',
                         [
                             stream.id,
                             snt.id,
                             min_time,
+                            snt.id,
                         ]);
 
         stream_numbers = dictfetchall(cursor)
@@ -77,8 +79,8 @@ def stream_numbers(request, stream_id, time_span):
     except Stream.DoesNotExist:
         return HttpResponse('Invalid stream id')
 
-    # now = datetime.datetime(2012, 6, 12, 21, 00, 02)
-    now = datetime.datetime.now()
+    now = datetime.datetime(2012, 6, 16, 02, 15, 02)
+    # now = datetime.datetime.now()
     if time_span == 'hour':
         min_time = now - datetime.timedelta(hours=1)
     elif time_span == 'day':
