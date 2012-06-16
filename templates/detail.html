@@ -1,21 +1,32 @@
 {% extends 'base.html' %}
 {% block content %}
-
 	<script type="text/javascript" charset="utf-8">
+		var config = {
+			"hour": {
+				"date-format": "HH:mm",
+				"grid-interval": 3
+			},
+			"day": {
+				"date-format": "HH:mm M/d/yyyy",
+				"grid-interval": 6
+			},
+			"week": {
+				"date-format": "HH:mm M/d/yyyy",
+				"grid-interval": 6
+			},
+			"month": {
+				"date-format": "M/d/yyyy",
+				"grid-interval": 6
+			}
+		}
+
 		function format_time(type, unix_time) {
 			var date = new Date(unix_time * 1000);
-
-			if (type == "hour" || type == "day") {
-				return date.toString("HH:mm M/d/yyyy");
-			}
-			if (type == 'week') {
-				return date.toString("HH:mm M/d/yyyy");
-			}
-			return date.toString("M/d/yyyy");
+			return date.toString(config[type]['date-format']);
 		}
 
 		function get_tool_tip_div(hits, unix_date) {
-			hits_str = ""
+			hits_str = "";
 			if (hits == null) {
 				hits_str = "stream offline";
 			}
@@ -44,7 +55,12 @@
 						date_str = format_time(type, point['date']);
 						the_tooltips[index] = get_tool_tip_div(point['number'],
 															   date_str);
-						the_labels[index] = index + 1;
+						if (index % config[type]['grid-interval'] == 0) {
+							the_labels[index] = format_time(type, point['date']);
+						}
+						else {
+							the_labels[index] = "";
+						}
 						if (point['number'] == null) {
 							the_values[index] = 0;
 						}
