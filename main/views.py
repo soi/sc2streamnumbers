@@ -79,14 +79,14 @@ def stream_numbers(request, stream_id, time_span):
     except Stream.DoesNotExist:
         return HttpResponse('Invalid stream id')
 
-    now = datetime.datetime(2012, 6, 16, 02, 15, 02)
-    # now = datetime.datetime.now()
+    # now = datetime.datetime(2012, 6, 16, 02, 15, 02)
+    now = datetime.datetime.now()
     if time_span == 'hour':
-        min_time = now - datetime.timedelta(hours=1)
+        min_time = now - datetime.timedelta(hours=1, minutes=5)
     elif time_span == 'day':
-        min_time = now - datetime.timedelta(days=1)
+        min_time = now - datetime.timedelta(days=1, minutes=30)
     elif time_span == 'week':
-        min_time = now - datetime.timedelta(days=7)
+        min_time = now - datetime.timedelta(days=7, hours=4)
     elif time_span == 'month':
         min_time = now - datetime.timedelta(days=30)
     elif time_span == 'year':
@@ -95,5 +95,5 @@ def stream_numbers(request, stream_id, time_span):
         # there is no data from 2011 or before
         min_time = datetime.datetime(2012, 1, 1, 0, 0, 0)
 
-    snum_dict = get_stream_numbers(stream, min_time, time_span)
-    return HttpResponse(json.dumps(snum_dict))
+    return_data = get_stream_numbers(stream, min_time, time_span)
+    return HttpResponse(json.dumps(return_data))

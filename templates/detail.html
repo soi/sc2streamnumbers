@@ -3,26 +3,34 @@
 	<script type="text/javascript" charset="utf-8">
 		var config = {
 			"hour": {
-				"date-format": "HH:mm",
+				"date-format-tooltip": "HH:mm",
+				"date-format-topline": "HH:mm dd MMM",
+				"date-format-axis": "HH:mm",
 				"grid-interval": 3
 			},
 			"day": {
-				"date-format": "HH:mm M/d/yyyy",
-				"grid-interval": 6
+				"date-format-tooltip": "HH:mm M/d/yyyy",
+				"date-format-topline": "HH:mm dd MMM",
+				"date-format-axis": "HH:mm - dd MMM",
+				"grid-interval": 8
 			},
 			"week": {
-				"date-format": "HH:mm M/d/yyyy",
+				"date-format-tooltip": "HH:mm M/d/yyyy",
+				"date-format-topline": "HH:mm M/d/yyyy",
+				"date-format-axis": "HH:mm M/d/yyyy",
 				"grid-interval": 6
 			},
 			"month": {
-				"date-format": "M/d/yyyy",
+				"date-format-tooltip": "M/d/yyyy",
+				"date-format-topline": "M/d/yyyy",
+				"date-format-axis": "M/d/yyyy",
 				"grid-interval": 6
 			}
 		}
 
-		function format_time(type, unix_time) {
+		function format_time(type, unix_time, date_format_type) {
 			var date = new Date(unix_time * 1000);
-			return date.toString(config[type]['date-format']);
+			return date.toString(config[type]['date-format-' + date_format_type]);
 		}
 
 		function get_tool_tip_div(hits, unix_date) {
@@ -42,57 +50,74 @@
 			return tool_tip;
 		}
 
-		function load_graph(type) {
-			var the_values, the_tooltips, the_labels;
+		function update_dates(type, data) {
+			$('#dates-start').html(format_time(type,
+											   data[0]['date'],
+											   'topline'));
+			$('#dates-end').html(format_time(type,
+											 data[data.length -1]['date'],
+											 'topline'));
+		}
 
-			// query for the data
+		function update_graph(type, data) {
+			var values = new Array(data.length);
+			var tooltips = new Array(data.length);
+			var labels = new Array(data.length);
+
+			$.each(data, function(index, point) {
+				date_str = format_time(type, point['date'], 'tooltip');
+				tooltips[index] = get_tool_tip_div(point['number'],
+													   date_str);
+				if (index % config[type]['grid-interval'] == 0) {
+					labels[index] = format_time(type, point['date'], 'axis');
+				}
+				else {
+					labels[index] = "";
+				}
+				if (point['number'] == null) {
+					values[index] = 0;
+				}
+				else {
+					values[index] = point['number'];
+				}
+			});
+
+			$("#graph").chart("clear");
+			$("#graph").chart({
+				template: "streamnumbers-" + type,
+				tooltips: tooltips,
+				values: {
+					serie1: values,
+				},
+				labels: labels,
+			});
+		}
+
+		function update_page(type) {
 			$.getJSON('http://{{ current_site }}/{{ stream.id }}' + '/' + type + '/',
 				function(data) {
-					the_values = new Array(data.length);
-					the_tooltips = new Array(data.length);
-					the_labels = new Array(data.length);
-					$.each(data, function(index, point) {
-						date_str = format_time(type, point['date']);
-						the_tooltips[index] = get_tool_tip_div(point['number'],
-															   date_str);
-						if (index % config[type]['grid-interval'] == 0) {
-							the_labels[index] = format_time(type, point['date']);
-						}
-						else {
-							the_labels[index] = "";
-						}
-						if (point['number'] == null) {
-							the_values[index] = 0;
-						}
-						else {
-							the_values[index] = point['number'];
-						}
-					});
-
-					$("#graph").chart("clear");
-					$("#graph").chart({
-						template: "streamnumbers-" + type,
-						tooltips: the_tooltips,
-						values: {
-							serie1: the_values,
-						},
-						labels: the_labels,
-					});
+					update_graph(type, data);
+					update_dates(type, data);
 				}
 			);
 		}
 
 		$(function() {
-			load_graph('hour');
+			update_page('hour');
 		});
+
 	</script>
 	<div id="details">
 		<h1>{{ stream.name }}</h1>
 		<div id="details-menu">
-			<a href="#" onclick="load_graph('hour')"> hour </a>
-			<a href="#" onclick="load_graph('day')"> day </a>
-			<a href="#" onclick="load_graph('week')"> week </a>
-			<a href="#" onclick="load_graph('month')"> month </a>
+			<a href="#" onclick="update_page('hour')"> hour </a>
+			<a href="#" onclick="update_page('day')"> day </a>
+			<a href="#" onclick="update_page('week')"> week </a>
+			<a href="#" onclick="update_page('month')"> month </a>
+		</div>
+		<div id="dates">
+			<span id="dates-start"></span> -
+			<span id="dates-end"></span>
 		</div>
 		<div id="graph">
 		</div>
