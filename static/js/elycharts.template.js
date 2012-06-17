@@ -3,7 +3,7 @@ $.elycharts.templates['streamnumbers-basic'] = {
 	style: {
 		"background-color": "#0B0B0B"
 	},
-	margins: [20, 35, 25, 55],
+	margins: [20, 45, 25, 55],
 	defaultSeries: {
 		rounded: 0.6,
 		fill: true,
@@ -11,6 +11,7 @@ $.elycharts.templates['streamnumbers-basic'] = {
 			"stroke-width": 4
 		},
 		dot: true,
+		dotShowOnNull: false,
 		dotProps: {
 			stroke: "#5AF",
 			"stroke-width": 2,
@@ -50,7 +51,23 @@ $.elycharts.templates['streamnumbers-basic'] = {
 			fill: "white",
 			"font-size": "12px"
 		},
-		labelsDistance: 14
+		labelsAnchor: "start",
+		labelsMargin: 7,
+		labelsDistance: -10
+	},
+	axis: {
+		l: {
+			labels: true,
+			labelsProps: {
+				fill: "#eaeaea",
+				"font-size": "12px",
+				"font-weight": "bold"
+			},
+			labelsDistance: 12,
+			labelsMargin: -1,
+			labelsAnchor: "end",
+			labelsSkip: 1,
+		}
 	},
 	features: {
 		mousearea: {

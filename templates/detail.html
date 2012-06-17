@@ -68,18 +68,15 @@
 				date_str = format_time(type, point['date'], 'tooltip');
 				tooltips[index] = get_tool_tip_div(point['number'],
 													   date_str);
-				if (index % config[type]['grid-interval'] == 0) {
-					labels[index] = format_time(type, point['date'], 'axis');
+				if (index < data.length - 1) {
+					if (index % config[type]['grid-interval'] == 0) {
+						labels[index] = format_time(type, point['date'], 'axis');
+					}
+					else {
+						labels[index] = "";
+					}
 				}
-				else {
-					labels[index] = "";
-				}
-				if (point['number'] == null) {
-					values[index] = 0;
-				}
-				else {
-					values[index] = point['number'];
-				}
+				values[index] = point['number'];
 			});
 
 			$("#graph").chart("clear");

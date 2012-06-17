@@ -92,8 +92,8 @@ def stream_numbers(request, stream_id, time_span):
     elif time_span == 'year':
         min_time = now - datetime.timedelta(years=1)
     elif time_span == 'forever':
-        # there is no data from 2011 or before
-        min_time = datetime.datetime(2012, 1, 1, 0, 0, 0)
+        # there is no data from 2000 or before
+        min_time = datetime.datetime(2000, 1, 1, 0, 0, 0)
 
     return_data = get_stream_numbers(stream, min_time, time_span)
     return HttpResponse(json.dumps(return_data))
