@@ -1,11 +1,11 @@
 $.elycharts.templates['streamnumbers-basic'] = {
 	type: "line",
 	style: {
-		"background-color": "#0B0B0B"
+		"background-color": "#111"
 	},
 	margins: [20, 45, 25, 55],
 	defaultSeries: {
-		rounded: 0.6,
+		rounded: false,
 		fill: true,
 		plotProps: {
 			"stroke-width": 4
@@ -96,4 +96,6 @@ $.elycharts.templates['streamnumbers-week'] = $.extend(true, {}, $.elycharts.tem
 $.elycharts.templates['streamnumbers-month'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
 
 $.elycharts.templates['streamnumbers-day']['features']['grid']['nx'] = 6;
+$.elycharts.templates['streamnumbers-week']['features']['grid']['nx'] = 6;
+$.elycharts.templates['streamnumbers-month']['features']['grid']['nx'] = 6;
 

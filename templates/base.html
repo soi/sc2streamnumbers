@@ -13,16 +13,16 @@
     <script type="text/javascript" src="/js/elycharts.template.js"></script>
 </head>
 <body>
-	<div id="mainwrap" class="wide">
-		<div id="header" align="left">
-			<!--<a href="/"><div id="logo"><img src="/images/logo.png" alt="logo" /></div></a>-->
+	<div id="header" align="left">
+		<div id="logo" class="wide">
+			<a href="/"> Sc2StreamNumbers </a>
 		</div>
-		<div id="content">
-			{% block content %}
-			{% endblock %}
-		</div>
-		<div id="footer" class="wide">
-		</div>
+	</div>
+	<div id="content" class="wide">
+		{% block content %}
+		{% endblock %}
+	</div>
+	<div id="footer" class="wide">
 	</div>
 </body>
 </html>

@@ -17,14 +17,14 @@
 			"week": {
 				"date-format-tooltip": "HH:mm M/d/yyyy",
 				"date-format-topline": "HH:mm M/d/yyyy",
-				"date-format-axis": "HH:mm M/d/yyyy",
-				"grid-interval": 6
+				"date-format-axis": "HH:mm - dd MMM",
+				"grid-interval": 7
 			},
 			"month": {
 				"date-format-tooltip": "M/d/yyyy",
 				"date-format-topline": "M/d/yyyy",
 				"date-format-axis": "M/d/yyyy",
-				"grid-interval": 6
+				"grid-interval": 8
 			}
 		}
 
@@ -107,10 +107,10 @@
 	<div id="details">
 		<h1>{{ stream.name }}</h1>
 		<div id="details-menu">
-			<a href="#" onclick="update_page('hour')"> hour </a>
-			<a href="#" onclick="update_page('day')"> day </a>
-			<a href="#" onclick="update_page('week')"> week </a>
-			<a href="#" onclick="update_page('month')"> month </a>
+			<input type="button" class="details-switcher" onclick="update_page('hour');" value="Hour"/>
+			<input type="button" class="details-switcher" onclick="update_page('day');" value="Day"/>
+			<input type="button" class="details-switcher" onclick="update_page('week');" value="Week"/>
+			<input type="button" class="details-switcher" onclick="update_page('month');" value="Month"/>
 		</div>
 		<div id="dates">
 			<span id="dates-start"></span> -

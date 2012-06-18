@@ -3,11 +3,11 @@
     padding: 0;
     font-family: arial, sans-serif;
     font-size: 100%;
-	color: #111;
+	color: #eee;
 }
 
 body {
-	background-color: #fefefe;
+	background-color: #111;
 }
 
 a {
@@ -16,9 +16,10 @@ a {
 }
 
 h1 {
-	font-size: 2em;
-	color: #222;
+	font-size: 2.2em;
+	color: #fff;
 	margin-bottom: 9px;
+	margin-top: 30px;
 	/*border-bottom: 1px dotted #555;*/
 }
 
@@ -37,6 +38,30 @@ li {
 	max-width: 1600px;
 }
 
+#header {
+	padding: 8px 1px;
+	background: rgb(214,214,214); /* Old browsers */
+	background: -moz-linear-gradient(top, rgba(214,214,214,1) 0%, rgba(142,142,142,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(214,214,214,1)), color-stop(100%,rgba(142,142,142,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, rgba(214,214,214,1) 0%,rgba(142,142,142,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, rgba(214,214,214,1) 0%,rgba(142,142,142,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, rgba(214,214,214,1) 0%,rgba(142,142,142,1) 100%); /* IE10+ */
+	background: linear-gradient(top, rgba(214,214,214,1) 0%,rgba(142,142,142,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', endColorstr='#8e8e8e',GradientType=0 ); /* IE6-9 */
+}
+
+#logo a {
+	color: #111	;
+	text-decoration: none;
+	font-size: 19px;
+	font-family: arial;
+	font-weight: bold;
+}
+
+.details-switcher {
+	color: #222;
+}
+
 #stream-list {
 	margin-top: 10px;
 }
@@ -44,6 +69,23 @@ li {
 .stream-list-stream {
 	margin-bottom: 15px;
 	margin-top: 5px;
+}
+
+#details-menu {
+	margin: 30px 0px 20px 0px;
+}
+
+.details-switcher {
+border: 0;
+border-radius: 4px;
+padding: 6px 11px;
+margin-right: 8px;
+background-color: #FFC055;
+cursor: pointer;
+}
+
+#dates {
+	font-size: 20px;
 }
 
 #graph {
@@ -58,7 +100,7 @@ li {
 .graph-tooltip-date { 
 	font-face: helvetica, arial; 
 	font-weight: normal; 
-	color: #5AF; 
+	color: #5af; 
 	font-size: 10px; 
 	line-height: 12px; 
 }
