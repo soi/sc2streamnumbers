@@ -9,8 +9,9 @@
     <script type="text/javascript" src="http://elycharts.com/sites/elycharts.com/repo/lib/raphael.js"></script>
 	<!--<script type="text/javascript" src="http://elycharts.com/sites/elycharts.com/repo/dist/elycharts.min.js"></script>-->
     <script type="text/javascript" src="/js/elycharts.js"></script>
-    <script type="text/javascript" src="http://datejs.googlecode.com/files/date.js"></script>
     <script type="text/javascript" src="/js/elycharts.template.js"></script>
+    <script type="text/javascript" src="http://datejs.googlecode.com/files/date.js"></script>
+    <script type="text/javascript" src="/js/extras.js"></script>
 </head>
 <body>
 	<div id="header" align="left">
@@ -23,6 +24,9 @@
 		{% endblock %}
 	</div>
 	<div id="footer" class="wide">
+		<span id="footer-copyright">Sc2StreamNumbers.com © 2012 </span> ·
+		<a href="http://{{ current_site }}/about/">about</a> ·
+		<a href="http://{{ current_site }}/contact/">contact</a>
 	</div>
 </body>
 </html>

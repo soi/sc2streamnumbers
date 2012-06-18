@@ -3,34 +3,34 @@
 	<script type="text/javascript" charset="utf-8">
 		var config = {
 			"hour": {
-				"date-format-tooltip": "HH:mm",
-				"date-format-topline": "HH:mm dd MMM",
-				"date-format-axis": "HH:mm",
+				"date-format-tooltip": "g:m a",
+				"date-format-topline": "F dS, Y g:m a",
+				"date-format-axis": "g:m a",
 				"grid-interval": 3
 			},
 			"day": {
-				"date-format-tooltip": "HH:mm M/d/yyyy",
-				"date-format-topline": "HH:mm dd MMM",
-				"date-format-axis": "HH:mm - dd MMM",
+				"date-format-tooltip": "g:ma %D",
+				"date-format-topline": "F dS, Y g:m a",
+				"date-format-axis": "F d, g:m a",
 				"grid-interval": 8
 			},
 			"week": {
-				"date-format-tooltip": "HH:mm M/d/yyyy",
-				"date-format-topline": "HH:mm M/d/yyyy",
-				"date-format-axis": "HH:mm - dd MMM",
-				"grid-interval": 7
+				"date-format-tooltip": "g:ma %D",
+				"date-format-topline": "F dS, Y g:m a",
+				"date-format-axis": "F d, g:m a",
+				"grid-interval": 6
 			},
 			"month": {
-				"date-format-tooltip": "M/d/yyyy",
-				"date-format-topline": "M/d/yyyy",
-				"date-format-axis": "M/d/yyyy",
+				"date-format-tooltip": "%D",
+				"date-format-topline": "F dS, Y",
+				"date-format-axis": "F d, Y",
 				"grid-interval": 8
 			}
 		}
 
 		function format_time(type, unix_time, date_format_type) {
 			var date = new Date(unix_time * 1000);
-			return date.toString(config[type]['date-format-' + date_format_type]);
+			return date.format(config[type]['date-format-' + date_format_type]);
 		}
 
 		function get_tool_tip_div(hits, unix_date) {
@@ -48,6 +48,12 @@
 			$('<p>').addClass("graph-tooltip-date")
 				.html(unix_date).appendTo(tool_tip);
 			return tool_tip;
+		}
+
+		function update_buttons(type) {
+			cap_type = type.replace(/^(.)/, function($1){ return $1.toUpperCase() });
+			$('#before').val(cap_type + " Before");
+			$('#next').val("Next " + cap_type);
 		}
 
 		function update_dates(type, data) {
@@ -95,6 +101,7 @@
 				function(data) {
 					update_graph(type, data);
 					update_dates(type, data);
+					update_buttons(type, data);
 				}
 			);
 		}
@@ -111,10 +118,13 @@
 			<input type="button" class="details-switcher" onclick="update_page('day');" value="Day"/>
 			<input type="button" class="details-switcher" onclick="update_page('week');" value="Week"/>
 			<input type="button" class="details-switcher" onclick="update_page('month');" value="Month"/>
+			<input type="button" id="before" class="details-offset-switcher" onclick="" value=""/>
+			<input type="button" id="next" class="details-offset-switcher" onclick="" value=""/>
+			<input type="button" id="auto-update" onclick="" value="Auto Update"/>
 		</div>
 		<div id="dates">
-			<span id="dates-start"></span> -
-			<span id="dates-end"></span>
+			<span id="dates-start" class="dates-part"></span> -
+			<span id="dates-end" class="dates-part"></span>
 		</div>
 		<div id="graph">
 		</div>

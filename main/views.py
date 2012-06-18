@@ -12,6 +12,7 @@ from streams.main.models import (Stream, Interval, StreamNumber,
 
 def homepage(request):
     latest_interval = Interval.objects.order_by('-date')[0]
+    current_site = Site.objects.get_current()
     stream_numbers= StreamNumber.objects.select_related() \
         .filter(interval=latest_interval) \
         .filter(stream_number_type__id=1) \
@@ -19,7 +20,8 @@ def homepage(request):
     return render_to_response('homepage.html',
                               {
                                 'stream_numbers': stream_numbers,
-                                'interval': latest_interval
+                                'interval': latest_interval,
+                                'current_site': current_site,
                               },
                               context_instance=RequestContext(request))
 
@@ -32,7 +34,7 @@ def detail(request, stream_id):
     return render_to_response('detail.html',
                               {
                                 'stream': stream,
-                                'current_site': current_site
+                                'current_site': current_site,
                               },
                               context_instance=RequestContext(request))
 
