@@ -3,20 +3,20 @@
 	<script type="text/javascript" charset="utf-8">
 		var config = {
 			"hour": {
-				"date-format-tooltip": "g:m a",
-				"date-format-topline": "F dS, Y g:m a",
-				"date-format-axis": "g:m a",
+				"date-format-tooltip": "g:i a",
+				"date-format-topline": "F dS, Y g:i a",
+				"date-format-axis": "g:i a",
 				"grid-interval": 3
 			},
 			"day": {
-				"date-format-tooltip": "g:ma %D",
-				"date-format-topline": "F dS, Y g:m a",
-				"date-format-axis": "F d, g:m a",
+				"date-format-tooltip": "g:ia %D",
+				"date-format-topline": "F dS, Y g:i a",
+				"date-format-axis": "F d, g:i a",
 				"grid-interval": 8
 			},
 			"week": {
-				"date-format-tooltip": "g:ma %D",
-				"date-format-topline": "F dS, Y g:m a",
+				"date-format-tooltip": "g:ia %D",
+				"date-format-topline": "F dS, Y g:i a",
 				"date-format-axis": "F d, g:m a",
 				"grid-interval": 6
 			},
@@ -50,10 +50,20 @@
 			return tool_tip;
 		}
 
-		function update_buttons(type) {
+		function update_buttons(type, data) {
 			cap_type = type.replace(/^(.)/, function($1){ return $1.toUpperCase() });
 			$('#before').val(cap_type + " Before");
 			$('#next').val("Next " + cap_type);
+
+			$('.details-switcher-current').removeClass('details-switcher-current')
+				.addClass('details-switcher');
+			$('#' + type).removeClass('details-switcher')
+				.addClass('details-switcher-current')
+				.removeAttr('onclick');
+
+			$('.details-switcher').each(function(index, elem) {
+				$(elem).attr('onclick', 'update_page(\'' + $(elem).attr('id') + '\')');
+			});
 		}
 
 		function update_dates(type, data) {
@@ -114,13 +124,21 @@
 	<div id="details">
 		<h1>{{ stream.name }}</h1>
 		<div id="details-menu">
-			<input type="button" class="details-switcher" onclick="update_page('hour');" value="Hour"/>
-			<input type="button" class="details-switcher" onclick="update_page('day');" value="Day"/>
-			<input type="button" class="details-switcher" onclick="update_page('week');" value="Week"/>
-			<input type="button" class="details-switcher" onclick="update_page('month');" value="Month"/>
-			<input type="button" id="before" class="details-offset-switcher" onclick="" value=""/>
-			<input type="button" id="next" class="details-offset-switcher" onclick="" value=""/>
-			<input type="button" id="auto-update" onclick="" value="Auto Update"/>
+			<div id="first-row">
+				<input type="button" id="hour" class="details-switcher" onclick="update_page('hour');" value="Hour"/>
+				<input type="button" id="day" class="details-switcher" onclick="update_page('day');" value="Day"/>
+				<input type="button" id="week" class="details-switcher" onclick="update_page('week');" value="Week"/>
+				<input type="button" id="month" class="details-switcher" onclick="update_page('month');" value="Month"/>
+			</div>
+			<div id="second-row">
+				<div id="offset">
+					<input type="button" id="before" class="details-offset-switcher" onclick="" value=""/>
+					<input type="button" id="next" class="details-offset-switcher" onclick="" value=""/>
+				</div>
+				<div id="auto-update">
+					<input type="button" id="auto-update" onclick="" value="Auto Update"/>
+				</div>
+			</div>
 		</div>
 		<div id="dates">
 			<span id="dates-start" class="dates-part"></span> -
