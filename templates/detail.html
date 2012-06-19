@@ -50,10 +50,13 @@
 			return tool_tip;
 		}
 
+		function toggle_auto_update() {
+			$('#auto-update').toggleClass('active');
+		}
+
 		function update_buttons(type, data) {
-			cap_type = type.replace(/^(.)/, function($1){ return $1.toUpperCase() });
-			$('#before').val(cap_type + " Before");
-			$('#next').val("Next " + cap_type);
+			$('#before').val(type + " Before");
+			$('#next').val("Next " + type);
 
 			$('.details-switcher-current').removeClass('details-switcher-current')
 				.addClass('details-switcher');
@@ -125,18 +128,19 @@
 		<h1>{{ stream.name }}</h1>
 		<div id="details-menu">
 			<div id="first-row">
-				<input type="button" id="hour" class="details-switcher" onclick="update_page('hour');" value="Hour"/>
-				<input type="button" id="day" class="details-switcher" onclick="update_page('day');" value="Day"/>
-				<input type="button" id="week" class="details-switcher" onclick="update_page('week');" value="Week"/>
-				<input type="button" id="month" class="details-switcher" onclick="update_page('month');" value="Month"/>
+				<input type="button" id="hour" class="button details-switcher" onclick="update_page('hour');" value="Hour"/>
+				<input type="button" id="day" class="button details-switcher" onclick="update_page('day');" value="Day"/>
+				<input type="button" id="week" class="button details-switcher" onclick="update_page('week');" value="Week"/>
+				<input type="button" id="month" class="button details-switcher" onclick="update_page('month');" value="Month"/>
 			</div>
 			<div id="second-row">
 				<div id="offset">
-					<input type="button" id="before" class="details-offset-switcher" onclick="" value=""/>
-					<input type="button" id="next" class="details-offset-switcher" onclick="" value=""/>
+					<input type="button" id="before" class="button details-offset-switcher" onclick="" value=""/>
+					<input type="button" id="next" class="button details-offset-switcher" onclick="" value=""/>
+					<input type="button" id="latest" class="button details-offset-switcher" onclick="" value="Latest"/>
 				</div>
-				<div id="auto-update">
-					<input type="button" id="auto-update" onclick="" value="Auto Update"/>
+				<div id="auto-update-div">
+					<input type="button" id="auto-update" class="button" onclick="toggle_auto_update()" value="Auto Update"/>
 				</div>
 			</div>
 		</div>
