@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 	<script type="text/javascript" charset="utf-8">
+		var last_tid = -1;
 		var config = {
 			"hour": {
 				"date-format-tooltip": "g:i a",
@@ -50,22 +51,37 @@
 			return tool_tip;
 		}
 
+		function auto_update(type) {
+			$.getJSON('http://{{ current_site }}/{{ stream.id }}' + '/' + type + '/',
+				function(data) {
+					update_graph(type, data, false);
+					update_dates(type, data);
+				});
+		}
+
 		function toggle_auto_update() {
-			$('#auto-update').toggleClass('active');
+			au_button =  $('#auto-update')
+			au_button.toggleClass('active');
+
+			if (last_tid >= 0) {
+				clearInterval(last_tid);
+				last_tid = -1;
+			}
+			if (au_button.hasClass('active')) {
+				type = $('.details-switcher.disabled').attr('id');
+				last_tid = setInterval(function() {auto_update(type)}, 1000*60);
+			}
 		}
 
 		function update_buttons(type, data) {
 			$('#before').val(type + " Before");
 			$('#next').val("Next " + type);
 
-			$('.details-switcher-current').removeClass('details-switcher-current')
-				.addClass('details-switcher');
-			$('#' + type).removeClass('details-switcher')
-				.addClass('details-switcher-current')
-				.removeAttr('onclick');
+			$('.disabled').removeClass('disabled')
+			$('#' + type).addClass('disabled').removeAttr('onclick');
 
 			$('.details-switcher').each(function(index, elem) {
-				$(elem).attr('onclick', 'update_page(\'' + $(elem).attr('id') + '\')');
+				$(elem).attr('onclick', 'update_page_click(this)');
 			});
 		}
 
@@ -78,7 +94,7 @@
 											 'topline'));
 		}
 
-		function update_graph(type, data) {
+		function update_graph(type, data, clear) {
 			var values = new Array(data.length);
 			var tooltips = new Array(data.length);
 			var labels = new Array(data.length);
@@ -98,7 +114,10 @@
 				values[index] = point['number'];
 			});
 
-			$("#graph").chart("clear");
+			if (clear) {
+				$("#graph").chart("clear");
+			}
+
 			$("#graph").chart({
 				template: "streamnumbers-" + type,
 				tooltips: tooltips,
@@ -109,10 +128,14 @@
 			});
 		}
 
-		function update_page(type) {
+		function update_page_click(elem) {
+			update_page($(elem).attr('id'), true);
+		}
+
+		function update_page(type, clear) {
 			$.getJSON('http://{{ current_site }}/{{ stream.id }}' + '/' + type + '/',
 				function(data) {
-					update_graph(type, data);
+					update_graph(type, data, clear);
 					update_dates(type, data);
 					update_buttons(type, data);
 				}
@@ -128,10 +151,10 @@
 		<h1>{{ stream.name }}</h1>
 		<div id="details-menu">
 			<div id="first-row">
-				<input type="button" id="hour" class="button details-switcher" onclick="update_page('hour');" value="Hour"/>
-				<input type="button" id="day" class="button details-switcher" onclick="update_page('day');" value="Day"/>
-				<input type="button" id="week" class="button details-switcher" onclick="update_page('week');" value="Week"/>
-				<input type="button" id="month" class="button details-switcher" onclick="update_page('month');" value="Month"/>
+				<input type="button" id="hour" class="button details-switcher" onclick="update_page_click(this);" value="Hour"/>
+				<input type="button" id="day" class="button details-switcher" onclick="update_page_click(this);" value="Day"/>
+				<input type="button" id="week" class="button details-switcher" onclick="update_page_click(this);" value="Week"/>
+				<input type="button" id="month" class="button details-switcher" onclick="update_page_click(this);" value="Month"/>
 			</div>
 			<div id="second-row">
 				<div id="offset">

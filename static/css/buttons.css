@@ -1,4 +1,4 @@
-#details-menu .button {
+.button {
 	border-radius: 5px;
 	padding: 5px 14px 6px;
 	margin-right: 8px;
@@ -11,7 +11,8 @@
 	text-transform: capitalize;
 }
 
-#details-menu input[type='button'].details-switcher-current {
+input[type='button'].disabled {
+	background: 0;
 	background-color: #ccc;
 	border: 1px solid #ccc;
 	cursor: default;
