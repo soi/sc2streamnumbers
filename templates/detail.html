@@ -2,36 +2,139 @@
 {% block content %}
 	<script type="text/javascript" charset="utf-8">
 		var last_tid = -1;
+		var current_type = 'hour';
+		var current_time_span_start = 0;
+		var current_time_span_end = 0;
+		var auto_update_interval = 1000 * 60;
+		var auto_update_offset = 500;
 		var config = {
 			"hour": {
 				"date-format-tooltip": "g:i a",
 				"date-format-topline": "F dS, Y g:i a",
 				"date-format-axis": "g:i a",
-				"grid-interval": 3
+				"grid-interval": 3,
+				"seconds-offset": 60 * 60
 			},
 			"day": {
 				"date-format-tooltip": "g:ia %D",
 				"date-format-topline": "F dS, Y g:i a",
 				"date-format-axis": "F d, g:i a",
-				"grid-interval": 8
+				"grid-interval": 8,
+				"seconds-offset": 60 * 60 * 24
 			},
 			"week": {
 				"date-format-tooltip": "g:ia %D",
 				"date-format-topline": "F dS, Y g:i a",
 				"date-format-axis": "F d, g:m a",
-				"grid-interval": 6
+				"grid-interval": 6,
+				"seconds-offset": 60 * 60 * 24 * 7
 			},
 			"month": {
 				"date-format-tooltip": "%D",
 				"date-format-topline": "F dS, Y",
 				"date-format-axis": "F d, Y",
-				"grid-interval": 8
+				"grid-interval": 8,
+				"seconds-offset": 60 * 60 * 24 * 7 * 30
 			}
 		}
 
 		function format_time(type, unix_time, date_format_type) {
 			var date = new Date(unix_time * 1000);
 			return date.format(config[type]['date-format-' + date_format_type]);
+		}
+
+		function disable_button(id) {
+			return $('#' + id).addClass('disabled').removeAttr('onclick');
+		}
+
+		function enable_button(id) {
+			return $('#' + id).removeClass('disabled');
+		}
+
+// *******************
+// Auto Update
+// ******************
+
+		function end_auto_update() {
+			$('#auto-update').removeClass('active');
+			if (last_tid >= 0) {
+				clearInterval(last_tid);
+				last_tid = -1;
+			}
+			enable_button('next').attr('onclick', 'go_next()');
+			enable_button('latest').attr('onclick', 'go_latest()');
+		}
+
+		function start_auto_update() {
+			$('#auto-update').addClass('active');
+			// run update 3s after and then every minute
+			setTimeout(function() {
+					update_page(current_type, 'latest', false);
+				},
+				auto_update_offset);
+			last_tid = setInterval(
+				function() {
+					update_page(current_type, 'latest', false);
+				},
+				auto_update_interval);
+			// disable now useless buttons
+			disable_button('next');
+			disable_button('latest');
+		}
+
+		function toggle_auto_update() {
+			if ($('#auto-update').hasClass('active'))
+				end_auto_update();
+			else
+				start_auto_update();
+		}
+
+// *********************
+// Go-To Functions
+// *********************
+
+		function go_before() {
+			end_auto_update();
+			update_page(current_type, current_time_span_start, false);
+		}
+
+		function go_next() {
+			current_time = Math.round(new Date().getTime() / 1000);
+			new_time_start = current_time_span_end +
+				config[current_type]['seconds-offset'];
+			if (current_time > new_time_start)
+				update_page(current_type, new_time_start, false);
+			else
+				update_page(current_type, 'latest', false);
+		}
+
+		function go_latest() {
+			update_page(current_type, 'latest', false);
+		}
+
+// *********************
+// Page Refresh
+// ********************
+
+		function update_buttons(type, data) {
+			$('#before').val(type + " Before");
+			$('#next').val("Next " + type);
+
+			$('.details-switcher').each(function(index, elem) {
+				$(elem).attr('onclick', 'update_page_click(this)');
+			});
+
+			enable_button($('.disabled').attr('id'));
+			disable_button(type);
+		}
+
+		function update_dates(type, data) {
+			$('#dates-start').html(format_time(type,
+											   data[0]['date'],
+											   'topline'));
+			$('#dates-end').html(format_time(type,
+											 data[data.length -1]['date'],
+											 'topline'));
 		}
 
 		function get_tool_tip_div(hits, unix_date) {
@@ -51,53 +154,13 @@
 			return tool_tip;
 		}
 
-		function auto_update(type) {
-			$.getJSON('http://{{ current_site }}/{{ stream.id }}' + '/' + type + '/',
-				function(data) {
-					update_graph(type, data, false);
-					update_dates(type, data);
-				});
-		}
-
-		function toggle_auto_update() {
-			au_button =  $('#auto-update')
-			au_button.toggleClass('active');
-
-			if (last_tid >= 0) {
-				clearInterval(last_tid);
-				last_tid = -1;
-			}
-			if (au_button.hasClass('active')) {
-				type = $('.details-switcher.disabled').attr('id');
-				last_tid = setInterval(function() {auto_update(type)}, 1000*60);
-			}
-		}
-
-		function update_buttons(type, data) {
-			$('#before').val(type + " Before");
-			$('#next').val("Next " + type);
-
-			$('.disabled').removeClass('disabled')
-			$('#' + type).addClass('disabled').removeAttr('onclick');
-
-			$('.details-switcher').each(function(index, elem) {
-				$(elem).attr('onclick', 'update_page_click(this)');
-			});
-		}
-
-		function update_dates(type, data) {
-			$('#dates-start').html(format_time(type,
-											   data[0]['date'],
-											   'topline'));
-			$('#dates-end').html(format_time(type,
-											 data[data.length -1]['date'],
-											 'topline'));
-		}
-
 		function update_graph(type, data, clear) {
 			var values = new Array(data.length);
 			var tooltips = new Array(data.length);
 			var labels = new Array(data.length);
+
+			current_time_span_start = data[0]['date'];
+			current_time_span_end =  data[data.length - 1]['date'];
 
 			$.each(data, function(index, point) {
 				date_str = format_time(type, point['date'], 'tooltip');
@@ -129,12 +192,24 @@
 		}
 
 		function update_page_click(elem) {
-			update_page($(elem).attr('id'), true);
+			current_type = $(elem).attr('id');
+			end_auto_update();
+			update_page(current_type, current_time_span_end, true);
 		}
 
-		function update_page(type, clear) {
-			$.getJSON('http://{{ current_site }}/{{ stream.id }}' + '/' + type + '/',
-				function(data) {
+		function update_page(type, time_span_end, clear) {
+			query_url = '';
+			// false is not > 0
+			if (time_span_end != 'latest' && time_span_end > 0) {
+				query_url = 'http://{{ current_site }}/{{ stream.id }}' + '/' +
+							type + '/' +
+							time_span_end + '/';
+			}
+			else {
+				query_url = 'http://{{ current_site }}/{{ stream.id }}' + '/' +
+							type + '/';
+			}
+			$.getJSON(query_url, function(data) {
 					update_graph(type, data, clear);
 					update_dates(type, data);
 					update_buttons(type, data);
@@ -143,7 +218,7 @@
 		}
 
 		$(function() {
-			update_page('hour');
+			update_page(current_type, 'latest', true);
 		});
 
 	</script>
@@ -158,9 +233,9 @@
 			</div>
 			<div id="second-row">
 				<div id="offset">
-					<input type="button" id="before" class="button details-offset-switcher" onclick="" value=""/>
-					<input type="button" id="next" class="button details-offset-switcher" onclick="" value=""/>
-					<input type="button" id="latest" class="button details-offset-switcher" onclick="" value="Latest"/>
+					<input type="button" id="before" class="button details-offset-switcher" onclick="go_before()" value=""/>
+					<input type="button" id="next" class="button details-offset-switcher" onclick="go_next()" value=""/>
+					<input type="button" id="latest" class="button details-offset-switcher" onclick="go_latest()" value="Latest"/>
 				</div>
 				<div id="auto-update-div">
 					<input type="button" id="auto-update" class="button" onclick="toggle_auto_update()" value="Auto Update"/>
@@ -169,7 +244,7 @@
 		</div>
 		<div id="dates">
 			<span id="dates-start" class="dates-part"></span> -
-			<span id="dates-end" class="dates-part"></span>
+			<span id="dates-end" class="dates-part"></span> CEST
 		</div>
 		<div id="graph">
 		</div>

@@ -1,16 +1,36 @@
 {% extends 'base.html' %}
 {% block content %}
+	<script type="text/javascript" charset="utf-8">
+		function search() {
+			query = $('#search-term').val();
+			if (!query.isEmpty()) {
+				query_url = 'http://{{ current_site }}/search/' + '/' +
+							query + '/';
+				$.getJSON(query_url, function(data) {
+					}
+				);
+			}
+		}
+	</script>
 	<div id="stream-list">
-		latest interval: {{ interval.date }} </br>
-		{% for snum in stream_numbers %}
-			<div class="stream-list-stream">
-				Name:
+		<h2>Popular Streams</h2>
+		<div id="stream-list-wrap">
+			{% for snum in stream_numbers %}
+				<div class="stream-list-stream">
 					<a href="{% url streams.main.views.detail snum.stream.id %}" >
-						{{ snum.stream.name }}
-					</a> </br>
-				Viewers: {{ snum.number }} </br>
-				Type: {{ snum.stream_type.name }} </br>
-			</div>
-		{% endfor %}
+						<h3>{{ snum.stream.name }}</h3>
+					</a>
+					{{ snum.number }} viewers
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+	<div id="search">
+		<h2>Search</h2>
+		<input id="search-term" type="text" size="20"/>
+		<input id="search-button" type="button" onclick="search()" value="Search"/>
+		<div id="search-results">
+			<h2>Results</h2>
+		</div>
 	</div>
 {% endblock %}
