@@ -1,16 +1,39 @@
 {% extends 'base.html' %}
 {% block content %}
 	<script type="text/javascript" charset="utf-8">
+		function get_result_div(stream) {
+			link = $('<a>').attr('href', 'http://{{ current_site }}/' + stream['id'] + '/')
+			link.append($('<h3>').html(stream['name']));
+			main_div = $('<div>').addClass('search-result');
+			main_div.append(link);
+			if (stream['number'] == null)
+				main_div.append('offline');
+			else
+				main_div.append(stream['number'] + " viewers");
+			return main_div;
+		}
+
 		function search() {
 			query = $('#search-term').val();
-			if (!query.isEmpty()) {
-				query_url = 'http://{{ current_site }}/search/' + '/' +
+			if (!query == '') {
+				query_url = 'http://{{ current_site }}/search/' +
 							query + '/';
 				$.getJSON(query_url, function(data) {
-					}
-				);
+						$('#search-results').html('<h2>Results</h2>');
+					$.each(data, function(index, elem) {
+						$('#search-results').append(get_result_div(elem));
+					});
+					$('#search-results').show();
+				});
 			}
 		}
+		$(function() {
+			$('#search-term').live("keypress", function(e) {
+				if (e.keyCode == 13) {
+					search();
+				}
+			});
+		});
 	</script>
 	<div id="stream-list">
 		<h2>Popular Streams</h2>

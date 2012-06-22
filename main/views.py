@@ -42,15 +42,17 @@ def search(request, query):
     cursor.execute('SELECT s.name, s.id, sn.number FROM main_stream as s \
                     LEFT JOIN main_streamnumber as sn \
                     ON sn.stream_id = s.id and sn.interval_id = %s \
-                    WHERE s.name ILIKE \'\%%s\%\' \
+                    WHERE s.name ILIKE %s \
+                        AND (sn.stream_number_type_id = 1 \
+                            OR sn.stream_number_type_id IS NULL) \
                     ORDER BY \
                         CASE WHEN sn.number IS NULL THEN -1 \
-                        ELSE sn.number END DESC;'
+                        ELSE sn.number END DESC, s.name;',
                     [
                         latest_interval.id,
-                        query
+                        '%' + query + '%'
                     ]);
-    return HttpResponse(json.dumps(dictfetchall(cursor))
+    return HttpResponse(json.dumps(dictfetchall(cursor)))
 
 def detail(request, stream_id):
     try:

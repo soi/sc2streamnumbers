@@ -80,7 +80,6 @@ input[type='text'] {
 #stream-list {
 	width: auto;
 	float: left;
-	margin-right: 70px;
 }
 
 #stream-list-wrap {
@@ -88,12 +87,13 @@ input[type='text'] {
 	border-right: 1px solid #888;
 }
 
-.stream-list-stream {
+.stream-list-stream, .search-result{
 	margin-top: 5px;
 	margin-bottom: 15px;
 }
 
 #search {
+	margin-left: 100px;
 	font-size 0.9em;
 	width: auto;
 	float: left;
@@ -104,21 +104,18 @@ input[type='text'] {
 	padding: 0px 10px;
 	margin-right: 10px;
 	border-radius: 5px;
-	height: 32px;
+	height: 34px;
 	color: #222;
-	border: 1px solid #666;
+	border: 0;
 }
 
-#search-button {
-	color: #111;
-	height: 34px;
-	padding: 0px 8px;
-	border-radius: 5px;
-	cursor: pointer;
-}
 
 #search-results {
 	display: none;
+}
+
+#search-results h2 {
+	margin: 20px 0px;
 }
 
 #details-menu {
