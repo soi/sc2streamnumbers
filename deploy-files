@@ -1,0 +1,7 @@
+apache
+main
+static
+templates
+__init__.py
+manage.py
+urls.py

@@ -16,21 +16,23 @@
 </head>
 <body>
 	<div id="header" align="left">
-		<div id="logo" class="wide">
+		<div id="logo">
 			<a href="/"> Sc2StreamNumbers </a>
 		</div>
 	</div>
-	<div id="content" class="wide">
-		{% block content %}
-		{% endblock %}
-	</div>
-	<div id="footer" class="wide">
-		<span id="footer-copyright">Sc2StreamNumbers.com © 2012 </span>
-		<!--
-		·
-		<a href="http://{{ current_site }}/about/">about</a> ·
-		<a href="http://{{ current_site }}/contact/">contact</a>
-		-->
+	<div id="main-wrap">
+		<div id="content">
+			{% block content %}
+			{% endblock %}
+		</div>
+		<div id="footer">
+			<span id="footer-copyright">Sc2StreamNumbers.com © 2012 </span>
+			<!--
+			·
+			<a href="http://{{ current_site }}/about/">about</a> ·
+			<a href="http://{{ current_site }}/contact/">contact</a>
+			-->
+		</div>
 	</div>
 </body>
 </html>

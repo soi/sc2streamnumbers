@@ -48,13 +48,8 @@ input[type='text'] {
 	color: #111;
 }
 
-.wide {
-    max-width: 1600px;
-    margin: 0 auto;
-}
-
-#mainwrap {
-	max-width: 1600px;
+#main-wrap, #logo {
+    margin: 0 8%;
 }
 
 #header {
