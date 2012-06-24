@@ -19,14 +19,20 @@
 				query_url = 'http://{{ current_site }}/search/' +
 							query + '/';
 				$.getJSON(query_url, function(data) {
-						$('#search-results').html('<h2>Results</h2>');
-					$.each(data, function(index, elem) {
-						$('#search-results').append(get_result_div(elem));
-					});
+					$('#search-results').html('<h2>Results</h2>');
+					if (data.length == 0) {
+						$('#search-results').append('No streams found');
+					}
+					else {
+						$.each(data, function(index, elem) {
+							$('#search-results').append(get_result_div(elem));
+						});
+					}
 					$('#search-results').show();
 				});
 			}
 		}
+
 		$(function() {
 			$('#search-term').live("keypress", function(e) {
 				if (e.keyCode == 13) {
@@ -40,9 +46,7 @@
 		<div id="stream-list-wrap">
 			{% for snum in stream_numbers %}
 				<div class="stream-list-stream">
-					<a href="{% url streams.main.views.detail snum.stream.id %}" >
-						<h3>{{ snum.stream.name }}</h3>
-					</a>
+					<a href="{% url streams.main.views.detail snum.stream.id %}" > <h3>{{ snum.stream.name }}</h3> </a>
 					{{ snum.number }} viewers
 				</div>
 			{% endfor %}

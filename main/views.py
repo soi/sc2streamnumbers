@@ -1,4 +1,4 @@
-import json
+import simplejson
 import time
 import datetime
 
@@ -52,7 +52,7 @@ def search(request, query):
                         latest_interval.id,
                         '%' + query + '%'
                     ]);
-    return HttpResponse(json.dumps(dictfetchall(cursor)))
+    return HttpResponse(simplejson.dumps(dictfetchall(cursor)))
 
 def detail(request, stream_id):
     try:
@@ -107,7 +107,8 @@ def stream_numbers(request, stream_id, time_span, time_span_end='latest'):
     if time_span_end == 'latest':
         max_time = datetime.datetime.now()
     else:
-        max_time = datetime.datetime.fromtimestamp(int(time_span_end) + 1)
+        # 3 min tolerance
+        max_time = datetime.datetime.fromtimestamp(int(time_span_end) + (3 * 60))
 
     if time_span == 'hour':
         min_time = max_time - datetime.timedelta(hours=1, minutes=5)
@@ -119,4 +120,4 @@ def stream_numbers(request, stream_id, time_span, time_span_end='latest'):
         min_time = max_time - datetime.timedelta(days=30)
 
     return_data = get_stream_numbers(stream, min_time, max_time, time_span)
-    return HttpResponse(json.dumps(return_data))
+    return HttpResponse(simplejson.dumps(return_data))
