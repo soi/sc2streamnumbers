@@ -64,20 +64,55 @@ def get_stream_dict_from_xml():
     parser = ET.XML(get_tl_xml_file())
 
     stream_list = []
-
+    stream_props = [
+        {
+            'name' : 'type',
+            'default': 'Default',
+        },
+        {
+            'name' : 'viewers',
+            'default': '0',
+        },
+        {
+            'name' : 'rating',
+            'default': 'Default',
+        },
+    ]
     for stream in parser:
         latest_stream = {}
-        if stream.get('type') is None:
-            latest_stream['type'] = 'Default'
-        else:
-            latest_stream['type'] = stream.get('type')
-        if stream.get('viewers') is None:
-            latest_stream['number'] = '0'
-        else:
-            latest_stream['number'] = stream.get('viewers')
+        for prop in stream_props:
+            if stream.get(prop['name']) is None:
+                latest_stream[prop['name']] = prop['default']
+            else:
+                latest_stream[prop['name']] = stream.get(prop['name'])
 
+        # channel properties
         channel = stream.find('channel')
-        latest_stream['name'] = channel.get('title')
+        if channel is None:
+            continue
+        else:
+            if channel.get('title') is None:
+                continue
+            else:
+                latest_stream['name'] = channel.get('title')
+            if channel.get('type') is None:
+                latest_stream['streaming_platform'] = 'Default'
+            else:
+                latest_stream['streaming_platform'] = channel.get('type')
+            if channel.text is None:
+                latest_stream['streaming_platform_ident'] = ''
+            else:
+                latest_stream['streaming_platform_ident'] = channel.text
+
+        # link properties
+        link = stream.find('link')
+        if link is None:
+            continue
+        else:
+            if link.text is None or link.get('type') != 'embed':
+                latest_stream['tl_stream_link'] = ''
+            else:
+                latest_stream['tl_stream_link'] = link.text
 
         stream_list.append(latest_stream)
     return stream_list
@@ -117,43 +152,88 @@ def add_missing_intervals(now, stream_number_types):
         return 0
 
 def insert_raw_stream_numbers(stream_list, interval_id):
-    cur.execute("SELECT name FROM main_stream")
-    names = [elem[0] for elem in cur.fetchall()]
+    tables = ['main_stream', 'main_streamtype', 'main_rating', 'main_streamingplatform']
 
-    cur.execute("SELECT name FROM main_streamtype")
-    types = [elem[0] for elem in cur.fetchall()]
+    all_elements = {}
+    for table in tables:
+        cur.execute("SELECT name FROM " + table)
+        all_elements[table] = [elem[0] for elem in cur.fetchall()]
 
     # write the data in the database
     for stream in stream_list:
-        if stream['type'] not in types:
-            cur.execute("INSERT into main_streamtype (name) VALUES (%s)",
+        if stream['type'] not in all_elements['main_streamtype']:
+            cur.execute("INSERT into main_streamtype (name) VALUES (%s) \
+                        RETURNING id",
                         (stream['type'],))
-            types.append(stream['type'])
-        if stream['name'] not in names:
-            cur.execute("INSERT into main_stream (name) VALUES (%s)",
+            type_id = cur.fetchone()[0]
+            all_elements['main_streamtype'].append(stream['type'])
+        else:
+            cur.execute("SELECT id FROM main_streamtype WHERE name = %s",
+                        (stream['type'],))
+            type_id = cur.fetchone()[0]
+
+        if stream['rating'] not in all_elements['main_rating']:
+            cur.execute("INSERT into main_rating (name) VALUES (%s) \
+                        RETURNING id",
+                        (stream['rating'],))
+            rating_id = cur.fetchone()[0]
+            all_elements['main_rating'].append(stream['rating'])
+        else:
+            cur.execute("SELECT id FROM main_rating WHERE name = %s",
+                        (stream['rating'],))
+            rating_id = cur.fetchone()[0]
+
+        if stream['streaming_platform'] not in all_elements['main_streamingplatform']:
+            cur.execute("INSERT into main_streamingplatform (name) VALUES (%s) \
+                        RETURNING id",
+                        (stream['streaming_platform'],))
+            platform_id = cur.fetchone()[0]
+            all_elements['main_streamingplatform'].append(stream['streaming_platform'])
+        else:
+            cur.execute("SELECT id FROM main_streamingplatform WHERE name = %s",
+                        (stream['streaming_platform'],))
+            platform_id = cur.fetchone()[0]
+
+        # add or update the current stream
+        if stream['name'] not in all_elements['main_stream']:
+            cur.execute("INSERT INTO main_stream (name, rating_id, \
+                        streaming_platform_id, streaming_platform_ident, \
+                        tl_stream_link) VALUES (%s,%s,%s,%s,%s) RETURNING id",
+                        (
+                            stream['name'],
+                            str(rating_id),
+                            str(platform_id),
+                            stream['streaming_platform_ident'],
+                            stream['tl_stream_link']
+                        ))
+            stream_id = cur.fetchone()[0]
+            all_elements['main_stream'].append(stream['name'])
+        else:
+            cur.execute("SELECT id FROM main_stream WHERE name = %s",
                         (stream['name'],))
-            names.append(stream['name'])
+            stream_id = cur.fetchone()[0]
+            cur.execute("UPDATE main_stream SET \
+                        rating_id = %s, streaming_platform_id = %s, \
+                        streaming_platform_ident = %s, tl_stream_link = %s \
+                        WHERE id = %s",
+                        (
+                            str(rating_id),
+                            str(platform_id),
+                            stream['streaming_platform_ident'],
+                            stream['tl_stream_link'],
+                            str(stream_id)
+                        ))
 
-        # get the id of the type and name
-        cur.execute("SELECT id FROM main_stream WHERE name = %s",
-                    (stream['name'],))
-        stream_id = cur.fetchone()[0]
-
-        cur.execute("SELECT id FROM main_streamtype WHERE name = %s",
-                    (stream['type'],))
-        type_id = cur.fetchone()[0]
-
-
-        # insert the raw one
+        # insert the raw stream number
         cur.execute("INSERT into main_streamnumber (stream_id, interval_id, \
                     stream_type_id, stream_number_type_id, number) \
                     VALUES (%s,%s,%s,%s,%s)",
                     (
-                         str(stream_id),
-                         str(interval_id),
-                         str(type_id),
-                         '1',
-                         stream['number']
+                        str(stream_id),
+                        str(interval_id),
+                        str(type_id),
+                        '1',
+                        stream['viewers']
                     ))
         conn.commit()
 

@@ -1,14 +1,24 @@
 from django.db import models
 
-class StreamType(models.Model):
+class Rating(models.Model):
     name = models.CharField(max_length=255)
 
-class Stream(models.Model):
+class StreamingPlatform(models.Model):
+    name = models.CharField(max_length=255)
+
+class StreamType(models.Model):
     name = models.CharField(max_length=255)
 
 class StreamNumberType(models.Model):
     name = models.CharField(max_length=255)
     number_count = models.IntegerField()
+
+class Stream(models.Model):
+    name = models.CharField(max_length=255)
+    rating = models.ForeignKey(Rating)
+    streaming_platform = models.ForeignKey(StreamingPlatform)
+    streaming_platform_ident = models.CharField(max_length=255)
+    tl_stream_link = models.CharField(max_length=255)
 
 class Interval(models.Model):
     stream_number_type = models.ForeignKey(StreamNumberType)

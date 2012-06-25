@@ -65,22 +65,54 @@ def get_stream_dict_from_xml():
     parser = ET.XML(get_tl_xml_file())
 
     stream_list = []
-
+    stream_props = [
+        {
+            'name' : 'type',
+            'default': 'Default',
+        },
+        {
+            'name' : 'number',
+            'default': '0',
+        },
+        {
+            'name' : 'rating',
+            'default': 'Default',
+        },
+    ]
     for stream in parser:
         latest_stream = {}
-        if stream.get('type') is None:
-            latest_stream['type'] = 'Default'
-        else:
-            latest_stream['type'] = stream.get('type')
-        if stream.get('viewers') is None:
-            latest_stream['number'] = '0'
-        else:
-            latest_stream['number'] = stream.get('viewers')
+        for prop in stream_props:
+            if stream.get(prop['name']) is None:
+                latest_stream(prop['name']) = prop['default']
+            else:
+                latest_stream(prop['name']) = stream.get(prop['name'])
 
+        # channel properties
         channel = stream.find('channel')
-        latest_stream['name'] = channel.get('title')
+        if channel is None:
+            continue
+        else:
+            if channel.get('title') is None:
+                continue
+            else:
+                latest_stream['name'] = channel.get('title')
+            if channel.text is None:
+                latest_stream['streaming_platform_indent'] = ''
+            else:
+                latest_stream['streaming_platform_indent'] = channel.text
+
+        # link properties
+        link = stream.find('link')
+        if link is None:
+            continue
+        else:
+            if link.text is None or link.get('embed') is None:
+                latest_stream['tl_stream_link'] = ''
+            else:
+                latest_stream['tl_stream_link'] = link.text
 
         stream_list.append(latest_stream)
+        import pdb; pdb.set_trace()
     return stream_list
 
 def insert_new_interval(now, stream_number_types, interval_snt_id):
