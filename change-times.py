@@ -58,7 +58,7 @@ while interval_count < len(all_intervals):
     interval = all_intervals[interval_count]
     interval_count += 1
 
-    print "interval = " + str(interval[0])
+    print "\ninterval = " + str(interval[0])
 
     interval_snt_id = get_interval_snt_id(interval_count, stream_number_types)
 
@@ -89,7 +89,8 @@ while interval_count < len(all_intervals):
         relevant_intervals = cur.fetchall()
         early_interval_date = relevant_intervals[len(relevant_intervals) - 1]
 
-        print "interval start: " + str(early_interval_date)
+        print "interval start = " + str(early_interval_date)
+        print "interval end = " + str(interval[1])
 
         cur.execute("select distinct s.id from main_stream s join main_streamnumber sn on sn.stream_id = s.id join main_interval i on i.id = sn.interval_id where i.date <= %s and i.date >= %s",
                     (
@@ -98,7 +99,7 @@ while interval_count < len(all_intervals):
                     ))
         valid_stream_ids = cur.fetchall()
 
-        print "anzahl streams: " + str(len(valid_stream_ids))
+        print "stream count = " + str(len(valid_stream_ids))
 
         for stream_id in valid_stream_ids:
             for snt in valid_snts:
