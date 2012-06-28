@@ -14,4 +14,5 @@ main_table_dump.sql
 main_dump.sql
 main_dump_complete.sql
 migrate_db
+sn.sql
 tl.xml
