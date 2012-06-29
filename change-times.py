@@ -14,6 +14,9 @@ DB_NAME = "streams"
 DB_USER = "root"
 # can cause problems when < 3 min
 QUERY_INTERVAL_MIN = 5
+# should never be shown, only for calculations
+MINIMUM_INTERVAL_ID = 502
+# MINIMUM_INTERVAL_ID = 0
 
 def get_total_number_count(snt_id, stream_number_types):
     """Calculates the raw number count of a snt.
@@ -45,12 +48,9 @@ stream_number_types = cur.fetchall()
 cur.execute("SELECT id FROM main_stream")
 all_stream_ids = cur.fetchall()
 
-cur.execute("SELECT id, date FROM main_interval order by date asc")
+cur.execute("SELECT id, date FROM main_interval where id > %s order by date asc",
+            (MINIMUM_INTERVAL_ID,))
 all_intervals = cur.fetchall()
-
-# serious stuff
-cur.execute("Delete from main_streamnumber where stream_number_type_id > 1")
-conn.commit()
 
 interval_count = 0
 while interval_count < len(all_intervals):
@@ -84,7 +84,7 @@ while interval_count < len(all_intervals):
         cur.execute("select id, date from main_interval where date <= %s order by date desc limit %s",
                     (
                         str(interval[1]),
-                        get_total_number_count(valid_snts[len(valid_snts) -1][0], stream_number_types)
+                        get_total_number_count(valid_snts[len(valid_snts) -1][0], stream_number_types) + 1
                     ))
         relevant_intervals = cur.fetchall()
         early_interval_date = relevant_intervals[len(relevant_intervals) - 1]
@@ -119,7 +119,7 @@ while interval_count < len(all_intervals):
                                  str(snt[0] - 1),
                                  str(snt[0] - 1),
                                  str(interval[1]),
-                                 str(snt[1]),
+                                 str(snt[1] + 1),
                             ))
                 snt_stream_number = cur.fetchone()[0]
 

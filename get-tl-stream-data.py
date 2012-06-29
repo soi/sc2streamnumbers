@@ -16,6 +16,8 @@ DB_NAME = "streams"
 DB_USER = "root"
 # can cause problems when < 3 min
 QUERY_INTERVAL_MIN = 5
+# should never be shown, only for calculations
+MINIMUM_INTERVAL_ID = 502
 
 def get_total_number_count(snt_id, stream_number_types):
     """Calculates the raw number count of a snt.
@@ -125,12 +127,15 @@ def insert_new_interval(now, stream_number_types, interval_snt_id):
     return interval_id
 
 def add_missing_intervals(now, stream_number_types):
-    cur.execute("SELECT date FROM main_interval ORDER BY date DESC LIMIT 1")
+    cur.execute("SELECT date FROM main_interval \
+                 WHERE id > %s ORDER BY date DESC LIMIT 1",
+                (MINIMUM_INTERVAL_ID,))
     last_interval_date_tuple = cur.fetchone()
 
     if last_interval_date_tuple is not None:
         last_interval_date = last_interval_date_tuple[0]
-        cur.execute("SELECT count(*) FROM main_interval")
+        cur.execute("SELECT count(*) FROM main_interval WHERE id > %s",
+                    (MINIMUM_INTERVAL_ID,))
         interval_count = cur.fetchone()[0]
 
         min_interval_delta = now - datetime.timedelta(minutes=(QUERY_INTERVAL_MIN + 2))
@@ -237,6 +242,27 @@ def insert_raw_stream_numbers(stream_list, interval_id):
                     ))
         conn.commit()
 
+def get_valid_stream_ids(stream_number_types, interval_snt_id):
+    cur.execute("SELECT id, date FROM main_interval \
+                ORDER BY date DESC LIMIT %s",
+                (
+                    str(get_total_number_count(interval_snt_id,
+                                               stream_number_types) + 1),
+                ))
+    relevant_intervals = cur.fetchall()
+    early_interval_date = relevant_intervals[len(relevant_intervals) - 1]
+
+    cur.execute("SELECT DISTINCT s.id FROM main_stream s \
+                INNER JOIN main_streamnumber sn \
+                    ON sn.stream_id = s.id \
+                INNER JOIN main_interval i \
+                    ON i.id = sn.interval_id \
+                WHERE i.date >= %s",
+                (
+                    str(early_interval_date[1]),
+                ))
+    return cur.fetchall()
+
 def insert_avg_stream_numbers(interval_id,
                               stream_number_types,
                               interval_snt_id):
@@ -254,7 +280,9 @@ def insert_avg_stream_numbers(interval_id,
             valid_snts.reverse()
             break
 
-    for stream_id in all_stream_ids:
+    valid_stream_ids = get_valid_stream_ids(stream_number_types,
+                                            interval_snt_id)
+    for stream_id in valid_stream_ids:
         for snt in valid_snts:
             # calculate from the averages from the next bigger resolution
             cur.execute("SELECT avg(n.number) FROM \
@@ -270,7 +298,7 @@ def insert_avg_stream_numbers(interval_id,
                              str(stream_id[0]),
                              str(snt[0] - 1),
                              str(snt[0] - 1),
-                             str(snt[1]),
+                             str(snt[1] + 1), # + 1 for the overlapping averages
                         ))
             snt_stream_number = cur.fetchone()[0]
 
@@ -288,7 +316,6 @@ def insert_avg_stream_numbers(interval_id,
                             ))
 
                 conn.commit()
-
 
 # save the time of the script at the start
 now = datetime.datetime.now(pytz.timezone('Europe/Berlin'))

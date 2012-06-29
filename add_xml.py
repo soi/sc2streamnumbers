@@ -17,6 +17,8 @@ DB_NAME = "streams"
 DB_USER = "root"
 # can cause problems when < 3 min
 QUERY_INTERVAL_MIN = 5
+# should never be shown, only for calculations
+MINIMUM_INTERVAL_ID = 502
 
 def get_total_number_count(snt_id, stream_number_types):
     """Calculates the raw number count of a snt.
@@ -103,12 +105,15 @@ def insert_new_interval(now, stream_number_types, interval_snt_id):
     return interval_id
 
 def add_missing_intervals(now, stream_number_types):
-    cur.execute("SELECT date FROM main_interval ORDER BY date DESC LIMIT 1")
+    cur.execute("SELECT date FROM main_interval \
+                 WHERE id > %s ORDER BY date DESC LIMIT 1",
+                (MINIMUM_INTERVAL_ID,))
     last_interval_date_tuple = cur.fetchone()
 
     if last_interval_date_tuple is not None:
         last_interval_date = last_interval_date_tuple[0]
-        cur.execute("SELECT count(*) FROM main_interval")
+        cur.execute("SELECT count(*) FROM main_interval WHERE id > %s",
+                    (MINIMUM_INTERVAL_ID,))
         interval_count = cur.fetchone()[0]
         return interval_count
     else:
@@ -233,7 +238,7 @@ def insert_avg_stream_numbers(interval_id,
                              str(stream_id[0]),
                              str(snt[0] - 1),
                              str(snt[0] - 1),
-                             str(snt[1]),
+                             str(snt[1] + 1), # + 1 for the overlapping averages
                         ))
             snt_stream_number = cur.fetchone()[0]
 
@@ -290,5 +295,3 @@ for f in sorted_ls(XML_FILES_FOLDER):
 conn.commit()
 cur.close()
 conn.close()
-
-
