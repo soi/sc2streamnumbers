@@ -15,7 +15,6 @@ main_dump.sql
 main_dump_complete.sql
 main_dump_remote.sql
 main_dump_final.sql
-migrate_db
 sn.sql
 tl.xml
 tmp/*

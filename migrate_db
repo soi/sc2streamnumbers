@@ -1,0 +1,12 @@
+#! /bin/bash
+
+mv -v main/migrations/00{08,09,10}* .
+python manage.py migrate main
+
+psql -U root -c "INSERT INTO main_streamingplatform (id, name) VALUES (1, 'Default');" streams
+psql -U root -c "INSERT INTO main_rating (id, name) VALUES (1, 'Default');" streams
+psql -U root -c "SELECT pg_catalog.setval('main_rating_id_seq', 1, true);" streams
+psql -U root -c "SELECT pg_catalog.setval('main_streamingplatform_id_seq', 1, true);" streams
+
+mv -v 00{08,09,10}* main/migrations/
+python manage.py migrate main
