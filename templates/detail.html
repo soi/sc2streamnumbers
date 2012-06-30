@@ -194,7 +194,7 @@
 		function update_page_click(elem) {
 			current_type = $(elem).attr('id');
 			end_auto_update();
-			update_page(current_type, current_time_span_end, true);
+			update_page(current_type, 'latest' , true);
 		}
 
 		function update_page(type, time_span_end, clear) {
@@ -223,13 +223,18 @@
 
 	</script>
 	<div id="details">
+		<div id="back">
+			<a href="/">
+				<input type="button" id="back-button" class="button" value="Back to homepage"/>
+			</a>
+		</div>
 		<h1>{{ stream.name }}</h1>
 		<div id="details-menu">
 			<div id="first-row">
-				<input type="button" id="hour" class="button details-switcher" onclick="update_page_click(this);" value="Hour"/>
-				<input type="button" id="day" class="button details-switcher" onclick="update_page_click(this);" value="Day"/>
-				<input type="button" id="week" class="button details-switcher" onclick="update_page_click(this);" value="Week"/>
-				<input type="button" id="month" class="button details-switcher" onclick="update_page_click(this);" value="Month"/>
+				<input type="button" id="hour" class="button details-switcher" onclick="update_page_click(this);" value="Hourly"/>
+				<input type="button" id="day" class="button details-switcher" onclick="update_page_click(this);" value="Daily"/>
+				<input type="button" id="week" class="button details-switcher" onclick="update_page_click(this);" value="Weekly"/>
+				<input type="button" id="month" class="button details-switcher" onclick="update_page_click(this);" value="Monthly"/>
 			</div>
 			<div id="second-row">
 				<div id="offset">
