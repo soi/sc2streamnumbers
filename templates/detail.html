@@ -2,7 +2,7 @@
 {% block content %}
 	<script type="text/javascript" charset="utf-8">
 		var last_tid = -1;
-		var current_type = 'hour';
+		var current_type = 'day';
 		var current_time_span_start = 0;
 		var current_time_span_end = 0;
 		var auto_update_interval = 1000 * 60;
@@ -222,39 +222,50 @@
 		});
 
 	</script>
-	<div id="details">
-		<div id="back">
-			<a href="/">
-				<input type="button" id="back-button" class="button" value="Back to homepage"/>
-			</a>
-		</div>
-		<h1>{{ stream.name }}</h1>
-		<div id="details-menu">
-			<div id="first-row">
-				<input type="button" id="hour" class="button details-switcher" onclick="update_page_click(this);" value="Hourly"/>
-				<input type="button" id="day" class="button details-switcher" onclick="update_page_click(this);" value="Daily"/>
-				<input type="button" id="week" class="button details-switcher" onclick="update_page_click(this);" value="Weekly"/>
-				<input type="button" id="month" class="button details-switcher" onclick="update_page_click(this);" value="Monthly"/>
+	<div id="details-top">
+		<div id="details-top-left">
+			<div id="back">
+				<a href="/">
+					<input type="button" id="back-button" class="button" value="Back to homepage"/>
+				</a>
 			</div>
-			<div id="second-row">
-				<div id="offset">
-					<input type="button" id="before" class="button details-offset-switcher" onclick="go_before()" value=""/>
-					<input type="button" id="next" class="button details-offset-switcher" onclick="go_next()" value=""/>
-					<input type="button" id="latest" class="button details-offset-switcher" onclick="go_latest()" value="Latest"/>
+			<h1>{{ stream.name }}</h1>
+			<div id="details-menu">
+				<div id="first-row">
+					<input type="button" id="hour" class="button details-switcher" onclick="update_page_click(this);" value="Hourly"/>
+					<input type="button" id="day" class="button details-switcher" onclick="update_page_click(this);" value="Daily"/>
+					<input type="button" id="week" class="button details-switcher" onclick="update_page_click(this);" value="Weekly"/>
+					<input type="button" id="month" class="button details-switcher" onclick="update_page_click(this);" value="Monthly"/>
 				</div>
-				<div id="auto-update-div">
-					<input type="button" id="auto-update" class="button" onclick="toggle_auto_update()" value="Auto Update"/>
+				<div id="second-row">
+					<div id="offset">
+						<input type="button" id="before" class="button details-offset-switcher" onclick="go_before()" value=""/>
+						<input type="button" id="next" class="button details-offset-switcher" onclick="go_next()" value=""/>
+						<input type="button" id="latest" class="button details-offset-switcher" onclick="go_latest()" value="Latest"/>
+					</div>
+					<div id="auto-update-div">
+						<input type="button" id="auto-update" class="button" onclick="toggle_auto_update()" value="Auto Update"/>
+					</div>
 				</div>
 			</div>
+			<div id="dates">
+				<span id="dates-start" class="dates-part"></span> -
+				<span id="dates-end" class="dates-part"></span> CEST
+			</div>
 		</div>
-		<div id="dates">
-			<span id="dates-start" class="dates-part"></span> -
-			<span id="dates-end" class="dates-part"></span> CEST
-		</div>
-		<div id="graph">
+		<div id="details-top-right">
+			<object width="390" height="300" class="videoplayer" id="live_embed_player_flash" bgcolor="#000000" data="http://www.twitch.tv/widgets/live_embed_player.swf?channel=followgrubby" type="application/x-shockwave-flash" style="width: 390px; height: 250px;">
+				<param value="true" name="allowFullScreen">
+				<param value="always" name="allowScriptAccess">
+				<param value="all" name="allowNetworking">
+				<param value="http://www.twitch.tv/widgets/live_embed_player.swf" name="movie">
+				<param value="hostname=www.twitch.tv&amp;channel=followgrubby&amp;auto_play=true&amp;start_volume=50" name="flashvars">
+			</object>
+			<div id="tl-link">
+				<a href="{{ stream.tl_stream_link }}">Watch on TeamLiquid.net</a>
+			</div>
 		</div>
 	</div>
-	<div id="stream-id" style="display: none">
-		{{ stream.id }}
+	<div id="graph">
 	</div>
 {% endblock %}
