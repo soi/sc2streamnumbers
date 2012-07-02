@@ -7,6 +7,11 @@
 		var current_time_span_end = 0;
 		var auto_update_interval = 1000 * 60;
 		var auto_update_offset = 500;
+		var embed_height = 250;
+		var embed_width = 390;
+		var stream_id, streaming_platform, streaming_platform_ident;
+		var current_site;
+		var embed_formats;
 		var config = {
 			"hour": {
 				"date-format-tooltip": "g:i a",
@@ -18,23 +23,42 @@
 			"day": {
 				"date-format-tooltip": "g:ia %D",
 				"date-format-topline": "F dS, Y g:i a",
-				"date-format-axis": "F d, g:i a",
+				"date-format-axis": "M d, g:i a",
 				"grid-interval": 8,
 				"seconds-offset": 60 * 60 * 24
 			},
 			"week": {
 				"date-format-tooltip": "g:ia %D",
 				"date-format-topline": "F dS, Y g:i a",
-				"date-format-axis": "F d, g:m a",
+				"date-format-axis": "M d, g:m a",
 				"grid-interval": 6,
 				"seconds-offset": 60 * 60 * 24 * 7
 			},
 			"month": {
 				"date-format-tooltip": "%D",
 				"date-format-topline": "F dS, Y",
-				"date-format-axis": "F d, Y",
+				"date-format-axis": "M d, Y",
 				"grid-interval": 8,
 				"seconds-offset": 60 * 60 * 24 * 7 * 30
+			}
+		}
+
+
+		function load_params() {
+			stream_id = $('#stream-id').html();
+			streaming_platform = $('#streaming-platform').html();
+			streaming_platform_ident = $('#streaming-platform-ident').html();
+			current_site = $('#current-site').html();
+
+			embed_formats = {
+				'Justin': '<object width="' + embed_width + '" height="' + embed_height + '" class="videoplayer" id="live_embed_player_flash" bgcolor="#000000" data="http://www.twitch.tv/widgets/live_embed_player.swf?channel=' + streaming_platform_ident + '" type="application/x-shockwave-flash" style="width: ' + embed_width + 'px; height: ' + embed_height + 'px;">' +
+					'<param value="true" name="allowFullScreen">' +
+					'<param value="always" name="allowScriptAccess">' +
+					'<param value="all" name="allowNetworking">' +
+					'<param value="http://www.twitch.tv/widgets/live_embed_player.swf" name="movie">' +
+					'<param value="hostname=www.twitch.tv&amp;channel=' + streaming_platform_ident + '&amp;auto_play=false&amp;start_volume=50" name="flashvars">' +
+					'</object>',
+				'Own3d': '<iframe height="' + embed_height + '" width="' + embed_width + '" frameborder="0" src="http://www.own3d.tv/liveembed/' + streaming_platform_ident + '"></iframe>'
 			}
 		}
 
@@ -201,12 +225,12 @@
 			query_url = '';
 			// false is not > 0
 			if (time_span_end != 'latest' && time_span_end > 0) {
-				query_url = 'http://{{ current_site }}/{{ stream.id }}' + '/' +
+				query_url = 'http://' + current_site + '/' + stream_id + '/' +
 							type + '/' +
 							time_span_end + '/';
 			}
 			else {
-				query_url = 'http://{{ current_site }}/{{ stream.id }}' + '/' +
+				query_url = 'http://' + current_site + '/' + stream_id + '/' +
 							type + '/';
 			}
 			$.getJSON(query_url, function(data) {
@@ -217,8 +241,14 @@
 			);
 		}
 
+		function load_embed() {
+			$('#embed').html(embed_formats[streaming_platform]);
+		}
+
 		$(function() {
+			load_params();
 			update_page(current_type, 'latest', true);
+			load_embed();
 		});
 
 	</script>
@@ -254,18 +284,17 @@
 			</div>
 		</div>
 		<div id="details-top-right">
-			<object width="390" height="300" class="videoplayer" id="live_embed_player_flash" bgcolor="#000000" data="http://www.twitch.tv/widgets/live_embed_player.swf?channel=followgrubby" type="application/x-shockwave-flash" style="width: 390px; height: 250px;">
-				<param value="true" name="allowFullScreen">
-				<param value="always" name="allowScriptAccess">
-				<param value="all" name="allowNetworking">
-				<param value="http://www.twitch.tv/widgets/live_embed_player.swf" name="movie">
-				<param value="hostname=www.twitch.tv&amp;channel=followgrubby&amp;auto_play=true&amp;start_volume=50" name="flashvars">
-			</object>
+			<div id="embed"></div>
 			<div id="tl-link">
 				<a href="{{ stream.tl_stream_link }}">Watch on TeamLiquid.net</a>
 			</div>
 		</div>
 	</div>
-	<div id="graph">
+	<div id="graph"></div>
+	<div id="hidden-params" style="display: none;">
+		<div id="stream-id">{{ stream.id }}</div>
+		<div id="current-site">{{ current_site }}</div>
+		<div id="streaming-platform-ident">{{ stream.streaming_platform_ident }}</div>
+		<div id="streaming-platform">{{ stream.streaming_platform.name }}</div>
 	</div>
 {% endblock %}

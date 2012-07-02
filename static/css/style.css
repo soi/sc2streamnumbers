@@ -171,6 +171,10 @@ input[type='text'] {
 	width: 390px;
 }
 
+#embed {
+	min-height: 250px;
+}
+
 #graph {
 	clear: both;
 	width: 100%;	
@@ -205,7 +209,6 @@ input[type='text'] {
 	clear: both;
 	width: 100%;
 	margin-top: 15px;
-	margin-bottom: 5px;
 	font-size: 0.9em;
 	padding-top: 5px;
 	border-top: 1px dotted #333;
