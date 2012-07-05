@@ -95,6 +95,13 @@ $.elycharts.templates['streamnumbers-day'] = $.extend(true, {}, $.elycharts.temp
 $.elycharts.templates['streamnumbers-week'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
 $.elycharts.templates['streamnumbers-month'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
 
+// grid counts
 $.elycharts.templates['streamnumbers-day']['features']['grid']['nx'] = 6;
 $.elycharts.templates['streamnumbers-week']['features']['grid']['nx'] = 7;
 $.elycharts.templates['streamnumbers-month']['features']['grid']['nx'] = 6;
+
+// tooltip sizes
+$.elycharts.templates['streamnumbers-day']['defaultSeries']['tooltip']['height'] = 46;
+$.elycharts.templates['streamnumbers-day']['defaultSeries']['tooltip']['width'] = 110;
+$.elycharts.templates['streamnumbers-week']['defaultSeries']['tooltip']['height'] = 46;
+$.elycharts.templates['streamnumbers-week']['defaultSeries']['tooltip']['width'] = 110;

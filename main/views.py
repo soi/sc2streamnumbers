@@ -18,6 +18,11 @@ def dictfetchall(cursor):
         for row in cursor.fetchall()
     ]
 
+def about(request):
+    return render_to_response('about.html',
+                              {},
+                              context_instance=RequestContext(request))
+
 def homepage(request):
     latest_interval = Interval.objects.order_by('-date')[0]
     current_site = Site.objects.get_current()

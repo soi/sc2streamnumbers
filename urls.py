@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'streams.main.views.homepage'),
+    url(r'^about/$', 'streams.main.views.about'),
     url(r'^search/(?P<query>\w+)/$', 'streams.main.views.search'),
     url(r'^(?P<stream_id>\d+)/$', 'streams.main.views.detail'),
     url(r'^(?P<stream_id>\d+)/(?P<time_span>\w+)/$', 'streams.main.views.stream_numbers'),

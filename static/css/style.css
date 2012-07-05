@@ -194,10 +194,15 @@ input[type='text'] {
 	color: #5af; 
 	font-size: 10px; 
 	line-height: 12px; 
+	margin-bottom: 1px;
 }
 
 .graph-tooltip-label { 
-	text-align: center;  
+	margin-left: 6px;
+}
+
+.graph-tooltip-label-center { 
+	text-align: center;
 }
 
 .details-graph {
@@ -220,4 +225,8 @@ input[type='text'] {
 
 #footer a {
 	color: #ccc;
+}
+
+#address {
+	margin-top: 20px;
 }

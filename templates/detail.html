@@ -14,35 +14,34 @@
 		var embed_formats;
 		var config = {
 			"hour": {
-				"date-format-tooltip": "g:i a",
 				"date-format-topline": "F dS, Y g:i a",
 				"date-format-axis": "g:i a",
 				"grid-interval": 3,
-				"seconds-offset": 60 * 60
+				"seconds-offset": 60 * 60,
+				"seconds-offset-step": 60 * 5
 			},
 			"day": {
-				"date-format-tooltip": "g:ia %D",
 				"date-format-topline": "F dS, Y g:i a",
 				"date-format-axis": "M d, g:i a",
 				"grid-interval": 8,
-				"seconds-offset": 60 * 60 * 24
+				"seconds-offset": 60 * 60 * 24,
+				"seconds-offset-step": 60 * 30
 			},
 			"week": {
-				"date-format-tooltip": "g:ia %D",
 				"date-format-topline": "F dS, Y g:i a",
 				"date-format-axis": "M d, g:m a",
 				"grid-interval": 6,
-				"seconds-offset": 60 * 60 * 24 * 7
+				"seconds-offset": 60 * 60 * 25 * 7,
+				"seconds-offset-step": 60 * 60 * 4
 			},
 			"month": {
-				"date-format-tooltip": "%D",
 				"date-format-topline": "F dS, Y",
 				"date-format-axis": "M d, Y",
 				"grid-interval": 8,
-				"seconds-offset": 60 * 60 * 24 * 7 * 30
+				"seconds-offset": 60 * 60 * 24 * 7 * 30,
+				"seconds-offset-step": 60 * 60 * 24
 			}
 		}
-
 
 		function load_params() {
 			stream_id = $('#stream-id').html();
@@ -161,7 +160,8 @@
 											 'topline'));
 		}
 
-		function get_tool_tip_div(hits, unix_date) {
+		function get_tool_tip_div(type, hits, unix_date) {
+			// rendering the numbers string
 			hits_str = "";
 			if (hits == null) {
 				hits_str = "stream offline";
@@ -169,12 +169,38 @@
 			else {
 				hits_str = hits + " viewers";
 			}
-
-			tool_tip = $('<div>').addClass("graph-tooltip-label");
+			tool_tip = $('<div>');
 			$('<p>').addClass("graph-tooltip-number")
 				.html(hits_str).appendTo(tool_tip);
-			$('<p>').addClass("graph-tooltip-date")
-				.html(unix_date).appendTo(tool_tip);
+
+			// rendering the dates
+			current_time = new Date(unix_date * 1000);
+			before_seconds = unix_date - config[type]['seconds-offset-step'];
+			before_time = new Date(before_seconds * 1000);
+			current_time_format = current_time.format('g:i a');
+			before_time_format = before_time.format('g:i a');
+			current_date_format = before_time.format('%D');
+			switch(type) {
+				case 'hour':
+					tool_tip.addClass("graph-tooltip-label-center");
+					$('<p>').addClass("graph-tooltip-date")
+						.html(current_time_format).appendTo(tool_tip);
+					break;
+				case 'day':
+				case 'week':
+					tool_tip.addClass("graph-tooltip-label");
+					$('<p>').addClass("graph-tooltip-date")
+						.html(before_time_format + ' - ' + current_time_format)
+						.appendTo(tool_tip);
+					$('<p>').addClass("graph-tooltip-date")
+						.html(current_date_format).appendTo(tool_tip);
+					break;
+				case 'month':
+					tool_tip.addClass("graph-tooltip-label-center");
+					$('<p>').addClass("graph-tooltip-date")
+						.html(current_date_format).appendTo(tool_tip);
+					break;
+			}
 			return tool_tip;
 		}
 
@@ -187,9 +213,9 @@
 			current_time_span_end =  data[data.length - 1]['date'];
 
 			$.each(data, function(index, point) {
-				date_str = format_time(type, point['date'], 'tooltip');
-				tooltips[index] = get_tool_tip_div(point['number'],
-													   date_str);
+				tooltips[index] = get_tool_tip_div(type,
+												   point['number'],
+												   point['date']);
 				if (index < data.length - 1) {
 					if (index % config[type]['grid-interval'] == 0) {
 						labels[index] = format_time(type, point['date'], 'axis');
