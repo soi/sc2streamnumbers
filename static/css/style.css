@@ -35,7 +35,7 @@ h2 {
 }
 
 h3 {
-	font-size: 1.2em;
+	font-size: 1.25em;
 	color: #FFB238;
 }
 
@@ -79,7 +79,7 @@ input[type='text'] {
 }
 
 #stream-list-wrap {
-	padding-right: 180px;
+	padding-right: 80px;
 	border-right: 1px solid #888;
 }
 
@@ -88,8 +88,15 @@ input[type='text'] {
 	margin-bottom: 15px;
 }
 
+.homepage-graph {
+	height: 130px;
+	width: 340px;
+	margin-left: -5px;
+	display: none;
+}
+
 #search {
-	margin-left: 100px;
+	margin-left: 80px;
 	font-size 0.9em;
 	width: auto;
 	float: left;
@@ -105,13 +112,24 @@ input[type='text'] {
 	border: 0;
 }
 
-
 #search-results {
 	display: none;
 }
 
 #search-results h2 {
 	margin: 20px 0px;
+}
+
+#currently-online {
+	margin-top: 50px;
+}
+
+#show-all-online {
+	margin: 20px 0px;
+}
+
+#show-all-online a {
+	color: #407FBF;
 }
 
 #back {
@@ -179,8 +197,7 @@ input[type='text'] {
 	clear: both;
 	width: 100%;	
 	height: 400px;
-	margin-left: -5px;
-	margin-right: -5px;
+	margin-left: -7px;
 }
 
 .graph-tooltip-number { 
@@ -214,6 +231,7 @@ input[type='text'] {
 	clear: both;
 	width: 100%;
 	margin-top: 15px;
+	margin-bottom: 5px;
 	font-size: 0.9em;
 	padding-top: 5px;
 	border-top: 1px dotted #333;

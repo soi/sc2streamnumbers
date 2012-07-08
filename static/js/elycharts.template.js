@@ -3,7 +3,7 @@ $.elycharts.templates['streamnumbers-basic'] = {
 	style: {
 		"background-color": "#111"
 	},
-	margins: [7, 7, 7, 5],
+	margins: [7, 7, 7, 7],
 	defaultSeries: {
 		rounded: false,
 		fill: true,
@@ -94,11 +94,14 @@ $.elycharts.templates['streamnumbers-hour'] = $.extend(true, {}, $.elycharts.tem
 $.elycharts.templates['streamnumbers-day'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
 $.elycharts.templates['streamnumbers-week'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
 $.elycharts.templates['streamnumbers-month'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
+$.elycharts.templates['streamnumbers-homepage'] = $.extend(true, {}, $.elycharts.templates['streamnumbers-basic']);
 
 // grid counts
 $.elycharts.templates['streamnumbers-day']['features']['grid']['nx'] = 6;
 $.elycharts.templates['streamnumbers-week']['features']['grid']['nx'] = 7;
 $.elycharts.templates['streamnumbers-month']['features']['grid']['nx'] = 6;
+$.elycharts.templates['streamnumbers-homepage']['features']['grid']['nx'] = 1;
+$.elycharts.templates['streamnumbers-homepage']['features']['grid']['ny'] = 2;
 
 // tooltip sizes
 $.elycharts.templates['streamnumbers-day']['defaultSeries']['tooltip']['height'] = 46;

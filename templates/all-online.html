@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+	<div id="back">
+		<a href="/">
+			<input type="button" id="back-button" class="button" value="Back to homepage"/>
+		</a>
+	</div>
+	<h2>Currently online</h2>
+	{% for snum in stream_numbers %}
+		<div id="{{ snum.stream.id }}" class="stream-list-stream">
+			<a href="{% url streams.main.views.detail snum.stream.id %}" >
+				<h3>{{ snum.stream.name }}</h3>
+			</a>
+			{{ snum.number }} viewers
+		</div>
+	{% endfor %}
+{% endblock %}

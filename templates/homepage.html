@@ -1,6 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
 	<script type="text/javascript" charset="utf-8">
+		function load_params() {
+			current_site = $('#current-site').html();
+		}
+
+		function get_tool_tip_div(hits, unix_date) {
+			// rendering the numbers string
+			hits_str = "";
+			if (hits == null) {
+				hits_str = "stream offline";
+			}
+			else {
+				hits_str = hits + " viewers";
+			}
+			tool_tip = $('<div>');
+			$('<p>').addClass("graph-tooltip-number")
+				.html(hits_str).appendTo(tool_tip);
+
+			current_time = new Date(unix_date * 1000);
+			current_time_format = current_time.format('g:i a');
+			tool_tip.addClass("graph-tooltip-label-center");
+			$('<p>').addClass("graph-tooltip-date")
+				.html(current_time_format).appendTo(tool_tip);
+			return tool_tip;
+		}
+
+		function get_homepage_stream_numbers(stream_id) {
+			$.getJSON('http://' + current_site + '/homepage/' + stream_id + '/',
+				function(data) {
+					var values = new Array(data.length);
+					var tooltips = new Array(data.length);
+
+					$.each(data, function(index, point) {
+						tooltips[index] = get_tool_tip_div(point['number'],
+														   point['date']);
+						values[index] = point['number'];
+					});
+
+					$("#" + stream_id + " .homepage-graph").show();
+					$("#" + stream_id + " .homepage-graph").chart({
+						template: "streamnumbers-homepage",
+						tooltips: tooltips,
+						values: {
+							serie1: values,
+						},
+					});
+				}
+			);
+		}
+
 		function get_result_div(stream) {
 			link = $('<a>').attr('href', 'http://{{ current_site }}/' + stream['id'] + '/')
 			link.append($('<h3>').html(stream['name']));
@@ -34,6 +83,12 @@
 		}
 
 		$(function() {
+			load_params();
+
+			$.each($('.stream-list-stream'), function(index, elem) {
+				get_homepage_stream_numbers($(elem).attr('id'));
+			});
+
 			$('#search-term').live("keypress", function(e) {
 				if (e.keyCode == 13) {
 					search();
@@ -44,10 +99,12 @@
 	<div id="stream-list">
 		<h2>Popular Streams</h2>
 		<div id="stream-list-wrap">
-			{% for snum in stream_numbers %}
-				<div class="stream-list-stream">
-					<a href="{% url streams.main.views.detail snum.stream.id %}" > <h3>{{ snum.stream.name }}</h3> </a>
-					{{ snum.number }} viewers
+			{% for snum in stream_numbers|slice:":4" %}
+				<div id="{{ snum.stream.id }}" class="stream-list-stream">
+					<a href="{% url streams.main.views.detail snum.stream.id %}" >
+						<h3>{{ snum.stream.name }}</h3>
+					</a>
+					<div class="homepage-graph"></div>
 				</div>
 			{% endfor %}
 		</div>
@@ -59,5 +116,22 @@
 		<div id="search-results">
 			<h2>Results</h2>
 		</div>
+		<div id="currently-online">
+			<h2>Currently online</h2>
+			{% for snum in stream_numbers|slice:"4:" %}
+				<div id="{{ snum.stream.id }}" class="stream-list-stream">
+					<a href="{% url streams.main.views.detail snum.stream.id %}" >
+						<h3>{{ snum.stream.name }}</h3>
+					</a>
+					{{ snum.number }} viewers
+				</div>
+			{% endfor %}
+			<div id="show-all-online">
+				<a href="{% url streams.main.views.all_online %}">Show all online streams</a>
+			</div>
+		</div>
+	</div>
+	<div id="hidden-params" style="display: none;">
+		<div id="current-site">{{ current_site }}</div>
 	</div>
 {% endblock %}

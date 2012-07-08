@@ -18,6 +18,33 @@ def dictfetchall(cursor):
         for row in cursor.fetchall()
     ]
 
+def get_stream_numbers(stream, min_time, max_time, snt_name):
+    from django.db import connection, transaction
+
+    cursor = connection.cursor()
+    snt = StreamNumberType.objects.get(name=snt_name)
+    cursor.execute('SELECT sn.number, i.date FROM main_interval as i \
+                    LEFT JOIN main_streamnumber as sn \
+                        ON (sn.interval_id = i.id \
+                            AND sn.stream_id = %s  \
+                            AND sn.stream_number_type_id = %s) \
+                    WHERE i.date >= %s \
+                        AND i.date <= %s \
+                        AND i.stream_number_type_id >= %s \
+                    ORDER BY i.date ASC',
+                    [
+                        stream.id,
+                        snt.id,
+                        min_time,
+                        max_time,
+                        snt.id,
+                    ]);
+
+    stream_numbers = dictfetchall(cursor)
+    for elem in stream_numbers:
+        elem['date'] = int(elem['date'].strftime("%s"))
+    return stream_numbers
+
 def about(request):
     return render_to_response('about.html',
                               {},
@@ -31,13 +58,24 @@ def homepage(request):
         .filter(interval=latest_interval) \
         .filter(stream_number_type__id=1) \
         .order_by('-number')[:12]
+
     return render_to_response('homepage.html',
                               {
                                 'stream_numbers': stream_numbers,
-                                'interval': latest_interval,
                                 'current_site': current_site,
                               },
                               context_instance=RequestContext(request))
+
+def homepage_stream_numbers(request, stream_id):
+    max_time = datetime.datetime.now()
+    min_time = max_time - datetime.timedelta(hours=3)
+    try:
+        stream = Stream.objects.get(pk=stream_id)
+    except Stream.DoesNotExist:
+        return HttpResponse('Invalid stream id')
+
+    return_data = get_stream_numbers(stream, min_time, max_time, 'day')
+    return HttpResponse(simplejson.dumps(return_data))
 
 def search(request, query):
     from django.db import connection, transaction
@@ -73,33 +111,6 @@ def detail(request, stream_id):
                               context_instance=RequestContext(request))
 
 def stream_numbers(request, stream_id, time_span, time_span_end='latest'):
-    def get_stream_numbers(stream, min_time, max_time, snt_name):
-        from django.db import connection, transaction
-
-        cursor = connection.cursor()
-        snt = StreamNumberType.objects.get(name=snt_name)
-        cursor.execute('SELECT sn.number, i.date FROM main_interval as i \
-                        LEFT JOIN main_streamnumber as sn \
-                            ON (sn.interval_id = i.id \
-                                AND sn.stream_id = %s  \
-                                AND sn.stream_number_type_id = %s) \
-                        WHERE i.date >= %s \
-                            AND i.date <= %s \
-                            AND i.stream_number_type_id >= %s \
-                        ORDER BY i.date ASC',
-                        [
-                            stream.id,
-                            snt.id,
-                            min_time,
-                            max_time,
-                            snt.id,
-                        ]);
-
-        stream_numbers = dictfetchall(cursor)
-        for elem in stream_numbers:
-            elem['date'] = int(elem['date'].strftime("%s"))
-        return stream_numbers
-
     # time_spans = ['hour', 'day', 'week', 'month', 'year', 'forever']
     time_spans = ['hour', 'day', 'week', 'month',]
     if time_span not in time_spans:
@@ -126,3 +137,20 @@ def stream_numbers(request, stream_id, time_span, time_span_end='latest'):
 
     return_data = get_stream_numbers(stream, min_time, max_time, time_span)
     return HttpResponse(simplejson.dumps(return_data))
+
+def all_online(request):
+    latest_interval = Interval.objects.order_by('-date')[0]
+    current_site = Site.objects.get_current()
+    stream_numbers= StreamNumber.objects.select_related() \
+        .filter(stream_type__name='SC2') \
+        .filter(interval=latest_interval) \
+        .filter(stream_number_type__id=1) \
+        .order_by('-number')
+
+    return render_to_response('all-online.html',
+                              {
+                                'stream_numbers': stream_numbers,
+                                'current_site': current_site,
+                              },
+                              context_instance=RequestContext(request))
+
