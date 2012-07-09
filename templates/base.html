@@ -16,11 +16,13 @@
 </head>
 <body>
 	<div id="header" align="left">
-		<div id="logo">
+		{% block logo_type %}
+		{% endblock %}
 			<a href="/"> Sc2StreamNumbers </a>
 		</div>
 	</div>
-	<div id="main-wrap">
+	{% block main_type %}
+	{% endblock %}
 		<div id="content">
 			{% block content %}
 			{% endblock %}

@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% block logo_type %}
+	<div id="logo">
+{% endblock %}
+{% block main_type %}
+	<div id="main-wrap">
+{% endblock %}
 {% block content %}
 	<script type="text/javascript" charset="utf-8">
 		function load_params() {
@@ -110,24 +116,26 @@
 		</div>
 	</div>
 	<div id="search">
-		<h2>Search</h2>
-		<input id="search-term" type="text" size="20"/>
-		<input id="search-button" type="button" onclick="search()" value="Search"/>
-		<div id="search-results">
-			<h2>Results</h2>
-		</div>
-		<div id="currently-online">
-			<h2>Currently online</h2>
-			{% for snum in stream_numbers|slice:"4:" %}
-				<div id="{{ snum.stream.id }}" class="stream-list-stream">
-					<a href="{% url streams.main.views.detail snum.stream.id %}" >
-						<h3>{{ snum.stream.name }}</h3>
-					</a>
-					{{ snum.number }} viewers
+		<h2 id="search-hl">Search</h2>
+		<div id="search-border-wrap">
+			<input id="search-term" type="text" size="20"/>
+			<input id="search-button" type="button" onclick="search()" value="Search"/>
+			<div id="search-results">
+				<h2>Results</h2>
+			</div>
+			<div id="currently-online">
+				<h2>Currently online</h2>
+				{% for snum in stream_numbers|slice:"4:" %}
+					<div id="{{ snum.stream.id }}" class="stream-list-stream">
+						<a href="{% url streams.main.views.detail snum.stream.id %}" >
+							<h3>{{ snum.stream.name }}</h3>
+						</a>
+						{{ snum.number }} viewers
+					</div>
+				{% endfor %}
+				<div id="show-all-online">
+					<a href="{% url streams.main.views.all_online %}">Show all online streams</a>
 				</div>
-			{% endfor %}
-			<div id="show-all-online">
-				<a href="{% url streams.main.views.all_online %}">Show all online streams</a>
 			</div>
 		</div>
 	</div>

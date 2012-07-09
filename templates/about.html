@@ -1,5 +1,16 @@
 {% extends 'base.html' %}
+{% block logo_type %}
+	<div id="logo">
+{% endblock %}
+{% block main_type %}
+	<div id="main-wrap">
+{% endblock %}
 {% block content %}
+<div id="back">
+	<a href="/">
+		<input type="button" id="back-button" class="button" value="Back to homepage"/>
+	</a>
+</div>
 <h1>About</h1>
 According to German law here is the relevant contact infomation:<br/>
 <p id="address">
