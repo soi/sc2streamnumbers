@@ -100,12 +100,24 @@
 					search();
 				}
 			});
+
+			if ($.browser.msie) {
+				$('#stream-list').remove();
+				$('#search-hl').css('padding-left', '0px');
+				$('#search-border-wrap').css('padding-left', '0px');
+				$('#search-border-wrap').css('border', '0');
+				$('#ie-explain').show();
+			}
+
 		});
 	</script>
 	<div id="stream-list">
 		<h2>Popular Streams</h2>
+		<div class="explain">
+			The three most popular streams at the moment. Click on the names for more details.
+		</div>
 		<div id="stream-list-wrap">
-			{% for snum in stream_numbers|slice:":4" %}
+			{% for snum in stream_numbers|slice:":3" %}
 				<div id="{{ snum.stream.id }}" class="stream-list-stream">
 					<a href="{% url streams.main.views.detail snum.stream.id %}" >
 						<h3>{{ snum.stream.name }}</h3>
@@ -118,14 +130,20 @@
 	<div id="search">
 		<h2 id="search-hl">Search</h2>
 		<div id="search-border-wrap">
-			<input id="search-term" type="text" size="20"/>
+			<div class="explain">
+				Look for online and offline streams.
+			</div>
+			<input id="search-term" placeholder="Liquid`TLO" type="text" size="20"/>
 			<input id="search-button" type="button" onclick="search()" value="Search"/>
 			<div id="search-results">
 				<h2>Results</h2>
 			</div>
 			<div id="currently-online">
 				<h2>Currently online</h2>
-				{% for snum in stream_numbers|slice:"4:" %}
+				<div id="ie-explain" class="explain">
+					Click on the stream names for a detailed viewer graph and additional information.
+				</div>
+				{% for snum in stream_numbers|slice:"7" %}
 					<div id="{{ snum.stream.id }}" class="stream-list-stream">
 						<a href="{% url streams.main.views.detail snum.stream.id %}" >
 							<h3>{{ snum.stream.name }}</h3>

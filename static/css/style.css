@@ -99,6 +99,12 @@ input[type='text'] {
 	display: none;
 }
 
+.explain {
+	width: 340px;
+	margin-bottom: 20px;
+	color: #ddd;
+}
+
 #search {
 	font-size 0.9em;
 	width: auto;
@@ -110,7 +116,7 @@ input[type='text'] {
 }
 
 #search-border-wrap {
-	border-left: 1px solid #888;
+	border-left: 3px solid #333;
 	padding-left: 80px;
 }
 
@@ -136,9 +142,15 @@ input[type='text'] {
 	margin-top: 50px;
 }
 
+#ie-explain {
+	display: none;
+	width: 300px;
+	margin-bottom: 20px;
+}
+
 #show-all-online {
-	margin: 25px 0px 10px 0px;
-	padding-bottom: 15px;
+	margin: 25px 0px 20px 0px;
+	padding-bottom: 5px;
 }
 
 #show-all-online a {
