@@ -277,10 +277,17 @@
 			$('#embed').html(embed_formats[streaming_platform]);
 		}
 
+		function adjust_resolution() {
+			if ($(window).width() < 1400) {
+				// $('#details-top-left').css('margin-right', '100px');
+			}
+		}
+
 		$(function() {
 			load_params();
 			update_page(current_type, 'latest', true);
 			load_embed();
+			adjust_resolution();
 		});
 
 	</script>

@@ -103,9 +103,6 @@
 
 			if ($.browser.msie) {
 				$('#stream-list').remove();
-				$('#search-hl').css('padding-left', '0px');
-				$('#search-border-wrap').css('padding-left', '0px');
-				$('#search-border-wrap').css('border', '0');
 				$('#ie-explain').show();
 			}
 
@@ -141,7 +138,7 @@
 			<div id="currently-online">
 				<h2>Currently online</h2>
 				<div id="ie-explain" class="explain">
-					Click on the stream names for a detailed viewer graph and additional information.
+					Click on the stream names for detailed graphs and additional information.
 				</div>
 				{% for snum in stream_numbers|slice:"7" %}
 					<div id="{{ snum.stream.id }}" class="stream-list-stream">

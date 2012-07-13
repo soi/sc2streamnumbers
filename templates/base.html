@@ -3,9 +3,8 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=9" />
     <title>Sc2StreamNumbers.com{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all" charset="utf-8" />
-    <link rel="stylesheet" href="/css/buttons.css" type="text/css" media="all" charset="utf-8" />
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript" src="http://elycharts.com/sites/elycharts.com/repo/lib/raphael.js"></script>
 	<!--<script type="text/javascript" src="http://elycharts.com/sites/elycharts.com/repo/dist/elycharts.min.js"></script>-->
@@ -13,12 +12,32 @@
     <script type="text/javascript" src="/js/elycharts.template.js"></script>
     <script type="text/javascript" src="http://datejs.googlecode.com/files/date.js"></script>
     <script type="text/javascript" src="/js/extras.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		template = $("<link/>", {
+		   rel: "stylesheet",
+		   type: "text/css",
+		   media: "all",
+		   charset: "utf-8"
+		});
+
+		// Fuck IE
+		if ($.browser.msie) {
+			template.clone().attr('href', '/css/style-ie.css').appendTo('head');
+			template.clone().attr('href', '/css/buttons-ie.css').appendTo('head');
+		}
+		else {
+			template.clone().attr('href', '/css/style.css').appendTo('head');
+			template.clone().attr('href', '/css/buttons.css').appendTo('head');
+		}
+	</script>
 </head>
 <body>
 	<div id="header" align="left">
 		{% block logo_type %}
 		{% endblock %}
-			<a href="/"> Sc2StreamNumbers </a>
+		<a href="/">
+			<img src="/images/logo2.png"/>
+		</a>
 		</div>
 	</div>
 	{% block main_type %}

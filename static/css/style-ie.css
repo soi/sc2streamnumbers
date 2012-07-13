@@ -117,12 +117,11 @@ input[type='text'] {
 }
 
 #search-hl {
-	padding-left: 80px;
+
 }
 
 #search-border-wrap {
-	border-left: 3px solid #333;
-	padding-left: 80px;
+
 }
 
 #search-term {
@@ -205,8 +204,7 @@ input[type='text'] {
 
 #details-top-left {
 	float: left;
-	width: auto;
-	margin-right: 18%;
+	width: 700px;
 }
 
 #details-top-right {
