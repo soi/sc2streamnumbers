@@ -12,6 +12,9 @@
 		</a>
 	</div>
 	<h2>Currently online</h2>
+	<div class="explain">
+		You can also <a href="{% url streams.main.views.search %}">search</a> in all online and offline streams.
+	</div>
 	{% for snum in stream_numbers %}
 		<div id="{{ snum.stream.id }}" class="stream-list-stream">
 			<a href="{% url streams.main.views.detail snum.stream.id %}" >

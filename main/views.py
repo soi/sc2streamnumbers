@@ -41,9 +41,33 @@ def get_stream_numbers(stream, min_time, max_time, snt_name):
                     ]);
 
     stream_numbers = dictfetchall(cursor)
+    cursor.close()
+
     for elem in stream_numbers:
         elem['date'] = int(elem['date'].strftime("%s"))
     return stream_numbers
+
+def get_search_results(query):
+    from django.db import connection, transaction
+    latest_interval = Interval.objects.order_by('-date')[0]
+
+    cursor = connection.cursor()
+    cursor.execute('SELECT s.name, s.id, sn.number FROM main_stream as s \
+                    LEFT JOIN main_streamnumber as sn \
+                    ON sn.stream_id = s.id and sn.interval_id = %s \
+                    WHERE s.name ILIKE %s \
+                        AND (sn.stream_number_type_id = 1 \
+                            OR sn.stream_number_type_id IS NULL) \
+                    ORDER BY \
+                        CASE WHEN sn.number IS NULL THEN -1 \
+                        ELSE sn.number END DESC, s.name;',
+                    [
+                        latest_interval.id,
+                        '%' + query + '%'
+                    ]);
+    return_dict = dictfetchall(cursor)
+    cursor.close()
+    return return_dict
 
 def about(request):
     return render_to_response('about.html',
@@ -78,24 +102,16 @@ def homepage_stream_numbers(request, stream_id):
     return HttpResponse(simplejson.dumps(return_data))
 
 def search(request, query):
-    from django.db import connection, transaction
-    latest_interval = Interval.objects.order_by('-date')[0]
+    current_site = Site.objects.get_current()
+    return render_to_response('search.html',
+                              {
+                                'query': query,
+                                'current_site': current_site,
+                              },
+                              context_instance=RequestContext(request))
 
-    cursor = connection.cursor()
-    cursor.execute('SELECT s.name, s.id, sn.number FROM main_stream as s \
-                    LEFT JOIN main_streamnumber as sn \
-                    ON sn.stream_id = s.id and sn.interval_id = %s \
-                    WHERE s.name ILIKE %s \
-                        AND (sn.stream_number_type_id = 1 \
-                            OR sn.stream_number_type_id IS NULL) \
-                    ORDER BY \
-                        CASE WHEN sn.number IS NULL THEN -1 \
-                        ELSE sn.number END DESC, s.name;',
-                    [
-                        latest_interval.id,
-                        '%' + query + '%'
-                    ]);
-    return HttpResponse(simplejson.dumps(dictfetchall(cursor)))
+def search_ajax(request, query):
+    return HttpResponse(simplejson.dumps(get_search_results(query)))
 
 def detail(request, stream_id):
     try:

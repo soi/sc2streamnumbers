@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block logo_type %}
+	<div id="logo">
+{% endblock %}
+{% block main_type %}
+	<div id="main-wrap">
+{% endblock %}
+{% block content %}
+	<script type="text/javascript" charset="utf-8">
+		var current_site, query;
+		function load_params() {
+			query = $('#query').html();
+			current_site = $('#current-site').html();
+		}
+
+		function get_result_div(stream) {
+			link = $('<a>').attr('href', 'http://' + current_site + '/' + stream['id'] + '/')
+			link.append($('<h3>').html(stream['name']));
+			main_div = $('<div>').addClass('search-result');
+			main_div.append(link);
+			if (stream['number'] == null)
+				main_div.append('offline');
+			else
+				main_div.append("online - " + stream['number'] + " viewers");
+			return main_div;
+		}
+
+
+		function search() {
+			query = $.trim($('#search-term').val());
+			if (!query == '') {
+				query_url = 'http://' + current_site + '/search/ajax/' +
+							query + '/';
+				$.getJSON(query_url, function(data) {
+					$('#search-results').html('<h2>Results</h2>');
+					if (data.length == 0) {
+						$('#search-results').append('No streams found');
+					}
+					else {
+						$.each(data, function(index, elem) {
+							$('#search-results').append(get_result_div(elem));
+						});
+					}
+					$('#search-results').show();
+				});
+			}
+		}
+
+		$(function() {
+			load_params();
+
+			$('#search-term').live("keypress", function(e) {
+				if (e.keyCode == 13) {
+					search();
+				}
+			});
+
+			$('#search-term').val(query);
+			search();
+		});
+	</script>
+	<div id="back">
+		<a href="/">
+			<input type="button" id="back-button" class="button" value="Back to homepage"/>
+		</a>
+	</div>
+	<h2>Search</h2>
+	<div class="explain">
+		Look for online and offline streams.
+	</div>
+	<input id="search-term" placeholder="Liquid`TLO" type="text" size="20"/>
+	<input id="search-button" type="button" onclick="search()" value="Search"/>
+	<div id="search-results">
+		<h2>Results</h2>
+	</div>
+	<div id="hidden-params" style="display: none;">
+		<div id="query">{{ query }}</div>
+		<div id="current-site">{{ current_site }}</div>
+	</div>
+{% endblock %}
