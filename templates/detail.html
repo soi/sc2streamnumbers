@@ -278,8 +278,8 @@
 		}
 
 		function adjust_resolution() {
-			if ($(window).width() < 1400) {
-				// $('#details-top-left').css('margin-right', '100px');
+			if ($(window).width() < 1400 && !$.browser.msie) {
+				$('#details-top-left').css('margin-right', '8%');
 			}
 		}
 
