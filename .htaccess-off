@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "Login required"
+AuthUserFile /home/soi/.htpasswd-streams
+Require user liquid
