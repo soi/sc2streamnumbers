@@ -79,7 +79,6 @@ def about(request):
 
 def homepage(request):
     latest_interval = Interval.objects.order_by('-date')[0]
-    current_site = Site.objects.get_current()
     stream_numbers= StreamNumber.objects.select_related() \
         .filter(stream_type__name='SC2') \
         .filter(interval=latest_interval) \
@@ -89,7 +88,6 @@ def homepage(request):
     return render_to_response('homepage.html',
                               {
                                 'stream_numbers': stream_numbers,
-                                'current_site': current_site,
                               },
                               context_instance=RequestContext(request))
 
@@ -105,11 +103,9 @@ def homepage_stream_numbers(request, stream_id):
     return HttpResponse(json.dumps(return_data))
 
 def search(request, query=''):
-    current_site = Site.objects.get_current()
     return render_to_response('search.html',
                               {
                                 'query': query,
-                                'current_site': current_site,
                               },
                               context_instance=RequestContext(request))
 
@@ -119,13 +115,11 @@ def search_ajax(request, query):
 def detail(request, stream_id):
     try:
         stream = Stream.objects.get(pk=stream_id)
-        current_site = Site.objects.get_current()
     except Stream.DoesNotExist:
         raise Http404
     return render_to_response('detail.html',
                               {
                                 'stream': stream,
-                                'current_site': current_site,
                               },
                               context_instance=RequestContext(request))
 
@@ -159,7 +153,6 @@ def stream_numbers(request, stream_id, time_span, time_span_end='latest'):
 
 def all_online(request):
     latest_interval = Interval.objects.order_by('-date')[0]
-    current_site = Site.objects.get_current()
     stream_numbers= StreamNumber.objects.select_related() \
         .filter(stream_type__name='SC2') \
         .filter(interval=latest_interval) \
@@ -169,7 +162,6 @@ def all_online(request):
     return render_to_response('all-online.html',
                               {
                                 'stream_numbers': stream_numbers,
-                                'current_site': current_site,
                               },
                               context_instance=RequestContext(request))
 

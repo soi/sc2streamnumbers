@@ -7,11 +7,6 @@
 {% endblock %}
 {% block content %}
 	<script type="text/javascript" charset="utf-8">
-		var current_site;
-		function load_params() {
-			current_site = $('#current-site').html();
-		}
-
 		function get_tool_tip_div(hits, unix_date) {
 			// rendering the numbers string
 			hits_str = "";
@@ -34,7 +29,7 @@
 		}
 
 		function get_homepage_stream_numbers(stream_id) {
-			$.getJSON('http://' + current_site + '/homepage/' + stream_id + '/',
+			$.getJSON('/homepage/' + stream_id + '/',
 				function(data) {
 					var values = new Array(data.length);
 					var tooltips = new Array(data.length);
@@ -59,12 +54,10 @@
 
 		function go_to_search() {
 			query = $('#search-term').val();
-			window.location = 'http://' + current_site + '/search/' + query + '/';
+			window.location = '/search/' + query + '/';
 		}
 
 		$(function() {
-			load_params();
-
 			$.each($('.stream-list-graph'), function(index, elem) {
 				get_homepage_stream_numbers($(elem).attr('id'));
 			});
@@ -123,8 +116,5 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	<div id="hidden-params" style="display: none;">
-		<div id="current-site">{{ current_site }}</div>
 	</div>
 {% endblock %}

@@ -7,14 +7,13 @@
 {% endblock %}
 {% block content %}
 	<script type="text/javascript" charset="utf-8">
-		var current_site, query;
+		var query;
 		function load_params() {
 			query = $('#query').html();
-			current_site = $('#current-site').html();
 		}
 
 		function get_result_div(stream) {
-			link = $('<a>').attr('href', 'http://' + current_site + '/' + stream['id'] + '/')
+			link = $('<a>').attr('href', '/' + stream['id'] + '/')
 			link.append($('<h3>').html(stream['name']));
 			main_div = $('<div>').addClass('search-result');
 			main_div.append(link);
@@ -29,8 +28,7 @@
 		function search() {
 			query = $.trim($('#search-term').val());
 			if (!query == '') {
-				query_url = 'http://' + current_site + '/search/ajax/' +
-							query + '/';
+				query_url = '/search/ajax/' + query + '/';
 				$.getJSON(query_url, function(data) {
 					$('#search-results').html('<h2>Results</h2>');
 					if (data.length == 0) {
@@ -75,6 +73,5 @@
 	</div>
 	<div id="hidden-params" style="display: none;">
 		<div id="query">{{ query }}</div>
-		<div id="current-site">{{ current_site }}</div>
 	</div>
 {% endblock %}
