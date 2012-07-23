@@ -65,7 +65,7 @@
 		$(function() {
 			load_params();
 
-			$.each($('.stream-list-stream'), function(index, elem) {
+			$.each($('.stream-list-graph'), function(index, elem) {
 				get_homepage_stream_numbers($(elem).attr('id'));
 			});
 
@@ -88,7 +88,7 @@
 		</div>
 		<div id="stream-list-wrap">
 			{% for snum in stream_numbers|slice:":3" %}
-				<div id="{{ snum.stream.id }}" class="stream-list-stream">
+				<div id="{{ snum.stream.id }}" class="stream-list-graph">
 					<a href="{% url streams.main.views.detail snum.stream.id %}" >
 						<h3>{{ snum.stream.name }}</h3>
 					</a>

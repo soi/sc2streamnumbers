@@ -1,4 +1,7 @@
-import simplejson
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import time
 import datetime
 
@@ -99,9 +102,9 @@ def homepage_stream_numbers(request, stream_id):
         return HttpResponse('Invalid stream id')
 
     return_data = get_stream_numbers(stream, min_time, max_time, 'day')
-    return HttpResponse(simplejson.dumps(return_data))
+    return HttpResponse(json.dumps(return_data))
 
-def search(request, query):
+def search(request, query=''):
     current_site = Site.objects.get_current()
     return render_to_response('search.html',
                               {
@@ -111,7 +114,7 @@ def search(request, query):
                               context_instance=RequestContext(request))
 
 def search_ajax(request, query):
-    return HttpResponse(simplejson.dumps(get_search_results(query)))
+    return HttpResponse(json.dumps(get_search_results(query)))
 
 def detail(request, stream_id):
     try:
@@ -152,7 +155,7 @@ def stream_numbers(request, stream_id, time_span, time_span_end='latest'):
         min_time = max_time - datetime.timedelta(days=30)
 
     return_data = get_stream_numbers(stream, min_time, max_time, time_span)
-    return HttpResponse(simplejson.dumps(return_data))
+    return HttpResponse(json.dumps(return_data))
 
 def all_online(request):
     latest_interval = Interval.objects.order_by('-date')[0]
