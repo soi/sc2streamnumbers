@@ -203,9 +203,7 @@ def insert_raw_stream_numbers(stream_list, interval_id):
         cur.execute("SELECT id, streaming_platform_id, streaming_platform_ident \
                     FROM main_stream \
                     WHERE streaming_platform_id = %s \
-                    AND streaming_platform_ident = %s \
-                    ORDER BY id desc \
-                    LIMIT 1",
+                    AND streaming_platform_ident = %s",
                     (
                         platform_id,
                         stream['streaming_platform_ident']
@@ -271,8 +269,7 @@ def get_valid_stream_ids(stream_number_types, interval_snt_id):
                 ))
     return cur.fetchall()
 
-def insert_avg_stream_numbers(exclude_stream_ids,
-                              interval_id,
+def insert_avg_stream_numbers(interval_id,
                               stream_number_types,
                               interval_snt_id):
 
@@ -333,10 +330,6 @@ now = datetime.datetime.now(pytz.timezone('Europe/Berlin'))
 conn = psycopg2.connect("dbname=" + DB_NAME + " user=" + DB_USER)
 cur = conn.cursor()
 
-exclude_stream_ids = []
-for s in open('/home/felix/git/streams/tmp/all-alpha'):
-    exclude_stream_ids.append(s.strip())
-
 cur.execute("SELECT id, number_count FROM main_streamnumbertype \
              ORDER BY id DESC")
 stream_number_types = cur.fetchall()
@@ -350,7 +343,7 @@ stream_list = get_stream_dict_from_xml()
 insert_raw_stream_numbers(stream_list, interval_id)
 
 if interval_snt_id > 1:
-    insert_avg_stream_numbers(exclude_stream_ids, interval_id, stream_number_types, interval_snt_id)
+    insert_avg_stream_numbers(interval_id, stream_number_types, interval_snt_id)
 
 # finish
 conn.commit()

@@ -346,7 +346,9 @@ interval_snt_id = get_interval_snt_id(interval_count + 1,
 interval_id = insert_new_interval(now, stream_number_types, interval_snt_id)
 stream_list = get_stream_dict_from_xml()
 insert_raw_stream_numbers(stream_list, interval_id)
-insert_avg_stream_numbers(interval_id, stream_number_types, interval_snt_id)
+
+if interval_snt_id > 1:
+    insert_avg_stream_numbers(interval_id, stream_number_types, interval_snt_id)
 
 # finish
 conn.commit()
