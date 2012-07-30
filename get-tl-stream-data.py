@@ -157,50 +157,59 @@ def add_missing_intervals(now, stream_number_types):
         return 0
 
 def insert_raw_stream_numbers(stream_list, interval_id):
-    tables = ['main_stream', 'main_streamtype', 'main_rating', 'main_streamingplatform']
+    name_tables = ['main_streamtype', 'main_rating', 'main_streamingplatform']
 
-    all_elements = {}
-    for table in tables:
+    name_elements = {}
+    for table in name_tables:
         cur.execute("SELECT name FROM " + table)
-        all_elements[table] = [elem[0] for elem in cur.fetchall()]
+        name_elements[table] = [elem[0] for elem in cur.fetchall()]
 
     # write the data in the database
     for stream in stream_list:
-        if stream['type'] not in all_elements['main_streamtype']:
+        if stream['type'] not in name_elements['main_streamtype']:
             cur.execute("INSERT into main_streamtype (name) VALUES (%s) \
                         RETURNING id",
                         (stream['type'],))
             type_id = cur.fetchone()[0]
-            all_elements['main_streamtype'].append(stream['type'])
+            name_elements['main_streamtype'].append(stream['type'])
         else:
             cur.execute("SELECT id FROM main_streamtype WHERE name = %s",
                         (stream['type'],))
             type_id = cur.fetchone()[0]
 
-        if stream['rating'] not in all_elements['main_rating']:
+        if stream['rating'] not in name_elements['main_rating']:
             cur.execute("INSERT into main_rating (name) VALUES (%s) \
                         RETURNING id",
                         (stream['rating'],))
             rating_id = cur.fetchone()[0]
-            all_elements['main_rating'].append(stream['rating'])
+            name_elements['main_rating'].append(stream['rating'])
         else:
             cur.execute("SELECT id FROM main_rating WHERE name = %s",
                         (stream['rating'],))
             rating_id = cur.fetchone()[0]
 
-        if stream['streaming_platform'] not in all_elements['main_streamingplatform']:
+        if stream['streaming_platform'] not in name_elements['main_streamingplatform']:
             cur.execute("INSERT into main_streamingplatform (name) VALUES (%s) \
                         RETURNING id",
                         (stream['streaming_platform'],))
             platform_id = cur.fetchone()[0]
-            all_elements['main_streamingplatform'].append(stream['streaming_platform'])
+            name_elements['main_streamingplatform'].append(stream['streaming_platform'])
         else:
             cur.execute("SELECT id FROM main_streamingplatform WHERE name = %s",
                         (stream['streaming_platform'],))
             platform_id = cur.fetchone()[0]
 
-        # add or update the current stream
-        if stream['name'] not in all_elements['main_stream']:
+        # check if the current stream already exists
+        cur.execute("SELECT id, streaming_platform_id, streaming_platform_ident \
+                    FROM main_stream \
+                    WHERE streaming_platform_id = %s \
+                    AND streaming_platform_ident = %s",
+                    (
+                        platform_id,
+                        stream['streaming_platform_ident']
+                    ))
+        current_stream = cur.fetchone()
+        if current_stream is None:
             cur.execute("INSERT INTO main_stream (name, rating_id, \
                         streaming_platform_id, streaming_platform_ident, \
                         tl_stream_link) VALUES (%s,%s,%s,%s,%s) RETURNING id",
@@ -212,11 +221,8 @@ def insert_raw_stream_numbers(stream_list, interval_id):
                             stream['tl_stream_link']
                         ))
             stream_id = cur.fetchone()[0]
-            all_elements['main_stream'].append(stream['name'])
         else:
-            cur.execute("SELECT id FROM main_stream WHERE name = %s",
-                        (stream['name'],))
-            stream_id = cur.fetchone()[0]
+            stream_id = current_stream[0]
             cur.execute("UPDATE main_stream SET \
                         rating_id = %s, streaming_platform_id = %s, \
                         streaming_platform_ident = %s, tl_stream_link = %s \

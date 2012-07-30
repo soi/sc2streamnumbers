@@ -12,6 +12,16 @@
     <script type="text/javascript" src="/js/raphael.js"></script>
     <script type="text/javascript" src="/js/elycharts.js"></script>
     <script type="text/javascript" src="/js/elycharts.template.js"></script>
+	<script type="text/javascript">
+		var pkBaseURL = (("https:" == document.location.protocol) ? "https://stats.sc2streamnumbers.com/" : "http://stats.sc2streamnumbers.com/");
+		document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+		</script><script type="text/javascript">
+		try {
+			var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+			piwikTracker.trackPageView();
+			piwikTracker.enableLinkTracking();
+		} catch( err ) {}
+	</script><noscript><p><img src="http://stats.sc2streamnumbers.com/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
 	<script type="text/javascript" charset="utf-8">
 		template = $("<link/>", {
 		   rel: "stylesheet",
@@ -49,7 +59,7 @@
 		<div id="footer">
 			<span id="footer-copyright">Sc2StreamNumbers.com © 2012 </span>
 			·
-			<a href="http://{{ current_site }}/about/">about</a> ·
+			<a href="/about/">about</a> ·
 			<a href="mailto:contact@sc2streamnumbers.com">contact</a>
 		</div>
 	</div>

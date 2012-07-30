@@ -27,6 +27,10 @@
 
 		function search() {
 			query = $.trim($('#search-term').val());
+			if (query.indexOf("/") != -1) {
+				alert("Your search contains the invalid character '/'");
+				return;
+			}
 			if (!query == '') {
 				query_url = '/search/ajax/' + query + '/';
 				$.getJSON(query_url, function(data) {

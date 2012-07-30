@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import os
 import sys
 import gzip
 import time
@@ -8,13 +9,12 @@ import urllib2
 import StringIO
 import psycopg2
 import datetime
+import pprint
 import xml.etree.ElementTree as ET
 
-URL = 'http://www.teamliquid.net/video/streams/?filter=live&xml=1'
-XML_FILES_FOLDER = '/home/soi/streams/xml/'
+XML_FILE= '/home/felix/git/streams/tmp/tl_livestreams_1340295303.gz'
 DB_NAME = "streams"
-DB_USER = "streams"
-DB_PASSWORD = "SZFLgMGS"
+DB_USER = "root"
 # can cause problems when < 3 min
 QUERY_INTERVAL_MIN = 5
 # should never be shown, only for calculations
@@ -39,32 +39,9 @@ def get_interval_snt_id(interval_count, stream_number_types):
         if interval_count % number_count == 0:
             return snt[0]
 
-def get_tl_xml_file():
-    """fetches the tl xml stream list and returns it as string"""
-    request = urllib2.Request(URL)
-    request.add_header('Accept-encoding', 'gzip')
-    request.add_header('User-agent', 'Custom User Agent')
-    response = urllib2.urlopen(request)
-    response_str = response.read()
-
-    # save the xml file so we always have it for later investigation
-    external_file = open(XML_FILES_FOLDER + \
-                         'tl_livestreams_' +
-                         str(int(time.time())) +
-                         '.gz',
-                         "wb")
-    external_file.write(response_str)
-    external_file.close();
-
-    # unzip it
-    buf = StringIO.StringIO(response_str)
-    f = gzip.GzipFile(fileobj=buf)
-    # f = open('tl.xml')
-    return f.read()
-
-def get_stream_dict_from_xml():
+def get_stream_dict_from_xml(raw):
     """parses the xml file and creates a corresponding python dict"""
-    parser = ET.XML(get_tl_xml_file())
+    parser = ET.XML(raw)
 
     stream_list = []
     stream_props = [
@@ -138,79 +115,55 @@ def add_missing_intervals(now, stream_number_types):
         cur.execute("SELECT count(*) FROM main_interval WHERE id > %s",
                     (MINIMUM_INTERVAL_ID,))
         interval_count = cur.fetchone()[0]
-
-        min_interval_delta = now - datetime.timedelta(minutes=(QUERY_INTERVAL_MIN + 2))
-        # fill a possible gap with blank intervals
-        while last_interval_date < min_interval_delta:
-            last_interval_date = last_interval_date + datetime.timedelta(minutes=5)
-            # increase before insert so the calculation fits
-            interval_count = interval_count + 1
-            cur.execute("INSERT into main_interval (stream_number_type_id, date) \
-                         VALUES (%s, %s)",
-                        (
-                            get_interval_snt_id(interval_count, stream_number_types),
-                            last_interval_date
-                        ))
-
-        conn.commit()
         return interval_count
     else:
         return 0
 
 def insert_raw_stream_numbers(stream_list, interval_id):
-    name_tables = ['main_streamtype', 'main_rating', 'main_streamingplatform']
+    tables = ['main_stream', 'main_streamtype', 'main_rating', 'main_streamingplatform']
 
-    name_elements = {}
-    for table in name_tables:
+    all_elements = {}
+    for table in tables:
         cur.execute("SELECT name FROM " + table)
-        name_elements[table] = [elem[0] for elem in cur.fetchall()]
+        all_elements[table] = [elem[0] for elem in cur.fetchall()]
 
     # write the data in the database
     for stream in stream_list:
-        if stream['type'] not in name_elements['main_streamtype']:
+        if stream['type'] not in all_elements['main_streamtype']:
             cur.execute("INSERT into main_streamtype (name) VALUES (%s) \
                         RETURNING id",
                         (stream['type'],))
             type_id = cur.fetchone()[0]
-            name_elements['main_streamtype'].append(stream['type'])
+            all_elements['main_streamtype'].append(stream['type'])
         else:
             cur.execute("SELECT id FROM main_streamtype WHERE name = %s",
                         (stream['type'],))
             type_id = cur.fetchone()[0]
 
-        if stream['rating'] not in name_elements['main_rating']:
+        if stream['rating'] not in all_elements['main_rating']:
             cur.execute("INSERT into main_rating (name) VALUES (%s) \
                         RETURNING id",
                         (stream['rating'],))
             rating_id = cur.fetchone()[0]
-            name_elements['main_rating'].append(stream['rating'])
+            all_elements['main_rating'].append(stream['rating'])
         else:
             cur.execute("SELECT id FROM main_rating WHERE name = %s",
                         (stream['rating'],))
             rating_id = cur.fetchone()[0]
 
-        if stream['streaming_platform'] not in name_elements['main_streamingplatform']:
+        if stream['streaming_platform'] not in all_elements['main_streamingplatform']:
             cur.execute("INSERT into main_streamingplatform (name) VALUES (%s) \
                         RETURNING id",
                         (stream['streaming_platform'],))
             platform_id = cur.fetchone()[0]
-            name_elements['main_streamingplatform'].append(stream['streaming_platform'])
+            all_elements['main_streamingplatform'].append(stream['streaming_platform'])
         else:
             cur.execute("SELECT id FROM main_streamingplatform WHERE name = %s",
                         (stream['streaming_platform'],))
             platform_id = cur.fetchone()[0]
 
-        # check if the current stream already exists
-        cur.execute("SELECT id, streaming_platform_id, streaming_platform_ident \
-                    FROM main_stream \
-                    WHERE streaming_platform_id = %s \
-                    AND streaming_platform_ident = %s",
-                    (
-                        platform_id,
-                        stream['streaming_platform_ident']
-                    ))
-        current_stream = cur.fetchone()
-        if current_stream is None:
+        # add or update the current stream
+        if stream['name'] not in all_elements['main_stream']:
             cur.execute("INSERT INTO main_stream (name, rating_id, \
                         streaming_platform_id, streaming_platform_ident, \
                         tl_stream_link) VALUES (%s,%s,%s,%s,%s) RETURNING id",
@@ -222,8 +175,11 @@ def insert_raw_stream_numbers(stream_list, interval_id):
                             stream['tl_stream_link']
                         ))
             stream_id = cur.fetchone()[0]
+            all_elements['main_stream'].append(stream['name'])
         else:
-            stream_id = current_stream[0]
+            cur.execute("SELECT id FROM main_stream WHERE name = %s",
+                        (stream['name'],))
+            stream_id = cur.fetchone()[0]
             cur.execute("UPDATE main_stream SET \
                         rating_id = %s, streaming_platform_id = %s, \
                         streaming_platform_ident = %s, tl_stream_link = %s \
@@ -249,27 +205,6 @@ def insert_raw_stream_numbers(stream_list, interval_id):
                     ))
         conn.commit()
 
-def get_valid_stream_ids(stream_number_types, interval_snt_id):
-    cur.execute("SELECT id, date FROM main_interval \
-                ORDER BY date DESC LIMIT %s",
-                (
-                    str(get_total_number_count(interval_snt_id,
-                                               stream_number_types) + 1),
-                ))
-    relevant_intervals = cur.fetchall()
-    early_interval_date = relevant_intervals[len(relevant_intervals) - 1]
-
-    cur.execute("SELECT DISTINCT s.id FROM main_stream s \
-                INNER JOIN main_streamnumber sn \
-                    ON sn.stream_id = s.id \
-                INNER JOIN main_interval i \
-                    ON i.id = sn.interval_id \
-                WHERE i.date >= %s",
-                (
-                    str(early_interval_date[1]),
-                ))
-    return cur.fetchall()
-
 def insert_avg_stream_numbers(interval_id,
                               stream_number_types,
                               interval_snt_id):
@@ -287,9 +222,7 @@ def insert_avg_stream_numbers(interval_id,
             valid_snts.reverse()
             break
 
-    valid_stream_ids = get_valid_stream_ids(stream_number_types,
-                                            interval_snt_id)
-    for stream_id in valid_stream_ids:
+    for stream_id in all_stream_ids:
         for snt in valid_snts:
             # calculate from the averages from the next bigger resolution
             cur.execute("SELECT avg(n.number) FROM \
@@ -324,27 +257,43 @@ def insert_avg_stream_numbers(interval_id,
 
                 conn.commit()
 
-# save the time of the script at the start
-now = datetime.datetime.now(pytz.timezone('Europe/Berlin'))
+
+def sorted_ls(path):
+    mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
+    return list(sorted(os.listdir(path), key=mtime))
 
 # db connection
-conn = psycopg2.connect("dbname=" + DB_NAME + \
-                        " user=" + DB_USER + \
-                        " password=" + DB_PASSWORD)
+conn = psycopg2.connect("dbname=" + DB_NAME + " user=" + DB_USER)
 cur = conn.cursor()
 
 cur.execute("SELECT id, number_count FROM main_streamnumbertype \
              ORDER BY id DESC")
 stream_number_types = cur.fetchall()
 
-# where the magic happends
-interval_count = add_missing_intervals(now, stream_number_types)
-interval_snt_id = get_interval_snt_id(interval_count + 1,
-                                      stream_number_types)
-interval_id = insert_new_interval(now, stream_number_types, interval_snt_id)
-stream_list = get_stream_dict_from_xml()
-insert_raw_stream_numbers(stream_list, interval_id)
-insert_avg_stream_numbers(interval_id, stream_number_types, interval_snt_id)
+fg = gzip.GzipFile(filename=XML_FILE)
+pprint.pprint(get_stream_dict_from_xml(fg.read()))
+"""
+for f in sorted_ls(XML_FILES_FOLDER):
+    print "\nworking on " + f
+
+    fname = XML_FILES_FOLDER + f
+    fg = gzip.GzipFile(filename=fname)
+    ftime = os.path.getmtime(fname)
+    now = datetime.datetime.fromtimestamp(int(ftime))
+
+    # where the magic happends
+    interval_count = add_missing_intervals(now, stream_number_types)
+    interval_snt_id = get_interval_snt_id(interval_count + 1,
+                                          stream_number_types)
+
+    print "snt_id = " + str(interval_snt_id)
+    print "time = " + str(now)
+
+    interval_id = insert_new_interval(now, stream_number_types, interval_snt_id)
+    stream_list = get_stream_dict_from_xml(fg.read())
+    insert_raw_stream_numbers(stream_list, interval_id)
+    insert_avg_stream_numbers(interval_id, stream_number_types, interval_snt_id)
+"""
 
 # finish
 conn.commit()
