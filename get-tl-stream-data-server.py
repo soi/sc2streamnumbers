@@ -204,7 +204,9 @@ def insert_raw_stream_numbers(stream_list, interval_id):
         cur.execute("SELECT id, streaming_platform_id, streaming_platform_ident \
                     FROM main_stream \
                     WHERE streaming_platform_id = %s \
-                    AND streaming_platform_ident = %s",
+                    AND streaming_platform_ident = %s \
+                    ORDER BY id desc \
+                    LIMIT 1",
                     (
                         platform_id,
                         stream['streaming_platform_ident']
